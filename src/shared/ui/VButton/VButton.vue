@@ -4,6 +4,7 @@ import { computed } from 'vue';
 interface Props {
   variant: 'primary' | 'outline';
   disabled?: boolean;
+  big?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -11,6 +12,7 @@ const props = defineProps<Props>();
 const buttonClasses = computed(() => ({
   primary: props.variant === 'primary',
   outline: props.variant === 'outline',
+  big: props.big,
 }));
 </script>
 
@@ -20,7 +22,7 @@ const buttonClasses = computed(() => ({
   </button>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 button {
   border-radius: 16px;
   padding: 20px 36px;
@@ -45,5 +47,28 @@ button {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.big {
+  font-size: 32px;
+  border-radius: 64px;
+  padding: 48px 70px;
+  min-width: 490px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-wrap: nowrap;
+
+  :deep(svg) {
+    width: 64px;
+    height: 64px;
+  }
+
+  //:deep(img) {
+  //  width: 64px;
+  //  height: 64px;
+  //}
 }
 </style>
