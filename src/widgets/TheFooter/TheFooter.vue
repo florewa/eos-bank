@@ -1,23 +1,31 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
+import IconInfo from '@/shared/assets/icons/IconInfo.svg';
+import IconQuestion from '@/shared/assets/icons/IconQuestion.svg';
 import { VButton } from '@/shared/ui';
-import IconInfo from '@/shared/ui/Icons/IconInfo.vue';
-import IconQuestionBtn from '@/shared/ui/Icons/IconQuestionBtn.vue';
+import { AboutModal, HelpModal } from '@/widgets';
+
+const helpModalRef = ref<InstanceType<typeof HelpModal> | null>(null);
+const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 </script>
 
 <template>
   <footer class="footer">
     <div class="footer__inner container">
       <div class="footer__body">
-        <VButton variant="primary" big>
+        <VButton variant="primary" big @click="aboutModalRef?.open()">
           <IconInfo />
           О компании
         </VButton>
-        <VButton variant="primary" big>
-          <IconQuestionBtn />
+        <VButton variant="primary" big @click="helpModalRef?.open()">
+          <IconQuestion />
           Помощь
         </VButton>
       </div>
     </div>
+    <HelpModal ref="helpModalRef" />
+    <AboutModal full-width ref="aboutModalRef" />
   </footer>
 </template>
 
@@ -25,7 +33,6 @@ import IconQuestionBtn from '@/shared/ui/Icons/IconQuestionBtn.vue';
 .footer {
   &__inner {
     width: 100%;
-    margin-bottom: 40px;
   }
 
   &__body {
@@ -33,6 +40,10 @@ import IconQuestionBtn from '@/shared/ui/Icons/IconQuestionBtn.vue';
     width: 100%;
     display: flex;
     gap: 20px;
+
+    button {
+      width: 100%;
+    }
   }
 }
 </style>

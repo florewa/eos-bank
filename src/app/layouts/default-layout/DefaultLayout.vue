@@ -17,6 +17,7 @@ import { TheFooter, TheHeader } from '@/widgets';
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  padding-bottom: 40px;
 
   .page {
     flex: 1 1 auto;

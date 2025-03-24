@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import IconQuestion from '@/shared/ui/Icons/IconQuestion.vue';
+
+import IconQuestionInput from '@/shared/assets/icons/IconQuestionInput.svg';
 
 type InputType = 'text' | 'password' | 'email' | 'number';
 
@@ -26,7 +27,7 @@ const emit = defineEmits(['update:modelValue']);
       :placeholder="props.placeholder"
       :disabled="props.disabled"
     />
-    <IconQuestion v-if="props.question" class="question-icon" />
+    <IconQuestionInput v-if="props.question" class="question-icon" />
   </div>
 </template>
 

@@ -5,6 +5,7 @@ interface Props {
   variant: 'primary' | 'outline';
   disabled?: boolean;
   big?: boolean;
+  rounded?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -13,6 +14,7 @@ const buttonClasses = computed(() => ({
   primary: props.variant === 'primary',
   outline: props.variant === 'outline',
   big: props.big,
+  rounded: props.rounded,
 }));
 </script>
 
@@ -28,9 +30,6 @@ button {
   padding: 20px 36px;
   font-weight: 700;
   font-size: 18px;
-  transition:
-    background 0.3s ease,
-    color 0.3s ease;
 }
 
 .primary {
@@ -52,9 +51,7 @@ button:disabled {
 .big {
   font-size: 32px;
   border-radius: 64px;
-  padding: 48px 70px;
-  min-width: 490px;
-  min-height: 160px;
+  padding: 48px 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,10 +62,9 @@ button:disabled {
     width: 64px;
     height: 64px;
   }
+}
 
-  //:deep(img) {
-  //  width: 64px;
-  //  height: 64px;
-  //}
+.rounded {
+  border-radius: 40px;
 }
 </style>

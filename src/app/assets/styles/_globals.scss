@@ -1,5 +1,9 @@
 @use 'helpers' as *;
 
+html {
+  overflow-y: hidden;
+}
+
 body {
   @include fluid-text(20, 16);
   font-family: var(--font-famaly-base);
