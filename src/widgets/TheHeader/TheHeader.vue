@@ -13,6 +13,8 @@
 
 <style scoped lang="scss">
 .header {
+  margin-bottom: 40px;
+
   &__body {
     border-radius: 0 0 64px 64px;
     padding: 48px;
@@ -21,6 +23,5 @@
     align-items: center;
     justify-content: space-between;
   }
-  margin-bottom: 40px;
 }
 </style>

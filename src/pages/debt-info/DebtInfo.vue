@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import DetailCabinet from '@/pages/debt-info/ui/DetailCabinet.vue';
+</script>
 
 <template>
-  <section class="debt-info"></section>
+  <DetailCabinet />
 </template>
 
 <style scoped lang="scss"></style>

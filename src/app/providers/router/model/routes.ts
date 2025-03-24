@@ -8,12 +8,12 @@ export const routes = [
   },
   {
     path: AppRoutes.DEBT_INFO,
-    name: 'about',
+    name: 'debt-info',
     component: () => import('@/pages/debt-info'),
   },
   {
     path: AppRoutes.PAY_DEBT,
-    name: 'about',
+    name: 'pay-debt',
     component: () => import('@/pages/pay-debt'),
   },
 ];
