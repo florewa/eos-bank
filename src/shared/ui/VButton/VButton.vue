@@ -27,7 +27,7 @@ const buttonClasses = computed(() => ({
 <style scoped lang="scss">
 button {
   border-radius: 16px;
-  padding: 20px 36px;
+  padding: 20px;
   font-weight: 700;
   font-size: 18px;
 }
@@ -39,6 +39,7 @@ button {
 }
 
 .outline {
+  background: transparent;
   border: 2px solid var(--red-primary);
   color: var(--red-primary);
 }

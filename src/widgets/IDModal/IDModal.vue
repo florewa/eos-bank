@@ -20,24 +20,12 @@ defineExpose({ open });
   <VModal :is-open="isOpen" @close="close">
     <div class="modal">
       <div class="modal__inner">
-        <div class="modal__title">Помощь</div>
+        <div class="modal__title">Идентификационный номер</div>
         <div class="modal__text">
-          Если у Вас возник вопрос по услугам:
-          <span class="bold">
-            «Узнать <br />
-            о задолженности»
-          </span>
-          и <span class="bold">«Оплатить задолженность»</span>, то звоните по
-          номеру —
-          <span class="red">8 (800) 555-17-10</span>
-        </div>
-        <div class="modal__text">
-          Если у Вас возник вопрос по услугам:
-          <span class="bold">«Получить кредит в банке»</span>,
-          <span class="bold">«Получить деньги на карту»</span>,
-          <span class="bold">«Оформить ОСАГО»</span>, то звоните <br />
-          по номеру —
-          <span class="red">8 (800) 707-39-02</span>
+          Если Вы не знаете свой идентификационный номер обратитесь в
+          контакт-центр по номеру <br />
+          <span class="red">8 (800) 555-17-10</span> c 5:00 до 20:00 мск
+          <br />(Звонок по России бесплатный).
         </div>
         <div class="modal__action">
           <VButton variant="primary" @click="close">Закрыть</VButton>
@@ -68,10 +56,6 @@ defineExpose({ open });
 
   &__text {
     font-size: 20px;
-
-    .bold {
-      font-weight: 700;
-    }
 
     .red {
       font-weight: 700;

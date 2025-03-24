@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { VButton } from '@/shared/ui';
+import { useRouter } from 'vue-router';
 
 import IconCards from '@/shared/assets/icons/IconCards.svg';
 import IconChecklist from '@/shared/assets/icons/IconChecklist.svg';
 import IconDocument from '@/shared/assets/icons/IconDocument.svg';
 import IconHuman from '@/shared/assets/icons/IconHuman.svg';
 import IconProtectedList from '@/shared/assets/icons/IconProtectedList.svg';
+import { VButton } from '@/shared/ui';
+
+const router = useRouter();
 
 const actions = [
   { icon: IconHuman, text: 'Узнать о задолженности', path: '/debt-info' },
@@ -22,6 +25,7 @@ const actions = [
       v-for="(action, index) in actions"
       :key="index"
       variant="primary"
+      @click="router.push(action.path)"
       big
     >
       <component :is="action.icon" />

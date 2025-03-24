@@ -3,7 +3,18 @@ import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()],
+  plugins: [
+    vue(),
+    svgLoader({
+      svgoConfig: {
+        plugins: [
+          {
+            name: 'removeStyleElement',
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': '/src',

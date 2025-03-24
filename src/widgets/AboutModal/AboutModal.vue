@@ -2,8 +2,7 @@
 import { ref } from 'vue';
 
 import certificateImg from '@/shared/assets/img/certificate.png';
-import { VButton } from '@/shared/ui';
-import VModal from '@/shared/ui/VModal/VModal.vue';
+import { VButton, VModal } from '@/shared/ui';
 
 const isOpen = ref(false);
 

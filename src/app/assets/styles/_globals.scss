@@ -8,8 +8,15 @@ body {
   @include fluid-text(20, 16);
   font-family: var(--font-famaly-base);
   line-height: 1.3;
-  color: var(--color-black-primary);
+  color: var(--red-primary);
   background: var(--background-colors-light-green2);
+}
+
+section {
+  background: var(--color-white);
+  border-radius: 64px;
+  padding: 48px;
+  margin-bottom: 40px;
 }
 
 h1,
@@ -36,6 +43,10 @@ h1,
 h2,
 .h2 {
   @include fluid-text(40, 32);
+}
+
+.text {
+  @include fluid-text(20, 14);
 }
 
 a,

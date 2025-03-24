@@ -3,23 +3,17 @@ import { MainActions } from '@/widgets';
 </script>
 
 <template>
-  <section class="main">
-    <div class="main__inner container">
-      <div class="main__body">
-        <MainActions />
-      </div>
-    </div>
-  </section>
+  <div class="home">
+    <MainActions />
+  </div>
 </template>
 
 <style scoped lang="scss">
-.main {
-  &__body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 256px;
-  }
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 216px;
 }
 </style>

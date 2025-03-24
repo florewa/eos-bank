@@ -13,7 +13,13 @@ const props = defineProps<{
   question?: boolean;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'open-modal']);
+
+const handleQuestionClick = () => {
+  if (props.question) {
+    emit('open-modal');
+  }
+};
 </script>
 
 <template>
@@ -27,11 +33,15 @@ const emit = defineEmits(['update:modelValue']);
       :placeholder="props.placeholder"
       :disabled="props.disabled"
     />
-    <IconQuestionInput v-if="props.question" class="question-icon" />
+    <IconQuestionInput
+      v-if="props.question"
+      class="question-icon"
+      @click="handleQuestionClick"
+    />
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .input-wrapper {
   position: relative;
   display: inline-block;
@@ -46,7 +56,7 @@ input {
   min-height: 64px;
   border: 2px solid var(--red-third);
   border-radius: 16px;
-  padding: 16px 48px 16px 24px;
+  padding: 16px 60px 16px 24px;
   width: 100%;
   box-sizing: border-box;
 
@@ -56,12 +66,13 @@ input {
 }
 
 .question-icon {
+  cursor: pointer;
   color: var(--red-third);
   position: absolute;
   right: 24px;
   top: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
 }
 </style>

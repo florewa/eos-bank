@@ -6,7 +6,9 @@ import { TheFooter, TheHeader } from '@/widgets';
   <div class="main" ref="app">
     <TheHeader />
     <main class="page">
-      <slot name="default" />
+      <div class="container">
+        <slot name="default" />
+      </div>
     </main>
     <TheFooter />
   </div>
