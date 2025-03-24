@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { VButton } from '@/shared/ui';
 import { ref } from 'vue';
+
+import { VButton } from '@/shared/ui';
 import { CabinetModal } from '@/widgets/CabinetModal';
 
 const cabinetModalRef = ref<InstanceType<typeof CabinetModal> | null>(null);

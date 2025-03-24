@@ -39,6 +39,7 @@ const modalClasses = computed(() => ({
 }
 
 .modal-content {
+  position: relative;
   max-width: 660px;
   border-radius: 64px;
   padding: 48px;

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { VButton, VModal } from '@/shared/ui';
-
 import lk1 from '@/shared/assets/img/lk-1.svg?url';
 import lk2 from '@/shared/assets/img/lk-2.svg?url';
 import lk3 from '@/shared/assets/img/lk-3.svg?url';
 import lk4 from '@/shared/assets/img/lk-4.svg?url';
+import { VButton, VModal } from '@/shared/ui';
 
 const isOpen = ref(false);
 

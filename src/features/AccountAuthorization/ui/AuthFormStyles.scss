@@ -1,0 +1,34 @@
+.account-authorization {
+  &__form {
+    &-inner {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+
+      .agreement-checkbox {
+        justify-content: center;
+      }
+    }
+
+    &-label {
+      font-weight: 700;
+    }
+  }
+
+  &__text {
+    margin-top: 40px;
+    display: flex;
+    gap: 12px;
+
+    p {
+      color: var(--red-accent);
+      font-weight: 700;
+    }
+  }
+}
+
+.agreement-checkbox {
+  grid-column: span 2;
+  margin-top: 10px;
+  justify-content: center;
+}

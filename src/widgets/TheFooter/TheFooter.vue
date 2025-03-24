@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router';
 import IconInfo from '@/shared/assets/icons/IconInfo.svg';
 import IconQuestion from '@/shared/assets/icons/IconQuestion.svg';
 import IconQuit from '@/shared/assets/icons/IconQuit.svg';
-
 import { VButton } from '@/shared/ui';
 import { AboutModal, HelpModal } from '@/widgets';
 

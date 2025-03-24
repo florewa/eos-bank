@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { VButton, VInput } from '@/shared/ui';
 import { ref } from 'vue';
 
-import IconSBP from '@/shared/assets/icons/IconSBP.svg?url';
 import IconMasterCard from '@/shared/assets/icons/IconMasterCard.svg';
-import IconVisa from '@/shared/assets/icons/IconVisa.svg';
 import IconMir from '@/shared/assets/icons/IconMir.svg';
+import IconSBP from '@/shared/assets/icons/IconSBP.svg?url';
+import IconVisa from '@/shared/assets/icons/IconVisa.svg';
+import { VButton, VInput } from '@/shared/ui';
 import { IDModal } from '@/widgets';
 
 const id = ref('');
