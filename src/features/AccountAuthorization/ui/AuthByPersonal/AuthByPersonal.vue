@@ -3,6 +3,7 @@ import { ref } from 'vue';
 
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
+import { useRouter } from 'vue-router';
 
 defineProps<{
   openModal: () => void;
@@ -11,6 +12,8 @@ defineProps<{
 defineEmits<{
   (e: 'open-agreements-modal', spanText: string): void;
 }>();
+
+const router = useRouter();
 
 const id = ref('');
 const sum = ref('');
@@ -52,7 +55,9 @@ const isAgreementAccepted = ref(false);
         v-model="sum"
         placeholder="Телефон"
       />
-      <VButton variant="primary">Войти</VButton>
+      <VButton variant="primary" type="button" @click="router.push('/cabinet')">
+        Войти
+      </VButton>
       <VCheckbox
         id="agreement-checkbox"
         v-model="isAgreementAccepted"
