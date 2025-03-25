@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
-import { useRouter } from 'vue-router';
 
 defineProps<{
   openModal: () => void;

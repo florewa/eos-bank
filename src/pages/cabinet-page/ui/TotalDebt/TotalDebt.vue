@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+
 import mockContracts from '@/app/assets/mocks/mockContract.ts';
 
 const isBlurred = ref(true);

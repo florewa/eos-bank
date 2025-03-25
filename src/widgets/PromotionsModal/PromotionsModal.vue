@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { type PropType } from 'vue';
-import { VButton, VModal } from '@/shared/ui';
+
 import { type Promotion } from '@/app/assets/mocks/mockContract.ts';
+import { VButton, VModal } from '@/shared/ui';
 
 const isOpen = ref(false);
 

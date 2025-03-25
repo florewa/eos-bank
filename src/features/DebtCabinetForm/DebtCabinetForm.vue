@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { VButton, VInput } from '@/shared/ui';
 import { ref } from 'vue';
-import IconVisa from '@/shared/assets/icons/IconVisa.svg';
+
 import IconMasterCard from '@/shared/assets/icons/IconMasterCard.svg';
 import IconMir from '@/shared/assets/icons/IconMir.svg';
 import IconSBP from '@/shared/assets/icons/IconSBP.svg?url';
+import IconVisa from '@/shared/assets/icons/IconVisa.svg';
 import picSrc from '@/shared/assets/img/GirlWithCard.svg?url';
+import { VButton, VInput } from '@/shared/ui';
 
 const sum = ref('');
 </script>

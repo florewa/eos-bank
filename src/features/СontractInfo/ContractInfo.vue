@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import SelectContract from '@/features/СontractInfo/ui/SelectContract/SelectContract.vue';
-import { VButton } from '@/shared/ui';
 import { computed, ref } from 'vue';
-import mockContracts from '@/app/assets/mocks/mockContract.ts';
-import { PromotionsModal } from '@/widgets';
 
+import mockContracts from '@/app/assets/mocks/mockContract.ts';
+import SelectContract from '@/features/СontractInfo/ui/SelectContract/SelectContract.vue';
 import IconInfo from '@/shared/assets/icons/IconInfo2.svg';
+import { VButton } from '@/shared/ui';
+import { PromotionsModal } from '@/widgets';
 
 const isContractSelected = ref(false);
 const selectedContractIndex = ref<number | null>(null);

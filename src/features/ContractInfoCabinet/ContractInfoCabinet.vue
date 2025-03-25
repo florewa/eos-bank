@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { VButton } from '@/shared/ui';
 import { defineProps, defineEmits } from 'vue';
 
-import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
 import type { Contract } from '@/app/assets/mocks/mockContract.ts';
+import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
+import { VButton } from '@/shared/ui';
 
 defineProps<{
   contract: Contract | null;

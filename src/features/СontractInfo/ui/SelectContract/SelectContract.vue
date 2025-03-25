@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { VButton } from '@/shared/ui';
 import { ref } from 'vue';
-import mockContracts from '@/app/assets/mocks/mockContract.ts';
 
+import mockContracts from '@/app/assets/mocks/mockContract.ts';
 import IconPromotion from '@/shared/assets/icons/IconPromotion.svg';
+import { VButton } from '@/shared/ui';
 
 const selectedContract = ref<number | null>(null);
 

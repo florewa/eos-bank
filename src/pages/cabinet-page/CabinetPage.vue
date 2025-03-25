@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
+import { type Contract } from '@/app/assets/mocks/mockContract.ts';
+import { ContractInfo, ContractInfoCabinet, DebtCabinetForm } from '@/features';
 import PersonalInfo from '@/pages/cabinet-page/ui/PersonalInfo/PersonalInfo.vue';
 import TotalDebt from '@/pages/cabinet-page/ui/TotalDebt/TotalDebt.vue';
-import { ref } from 'vue';
-import { ContractInfo, ContractInfoCabinet, DebtCabinetForm } from '@/features';
-import { type Contract } from '@/app/assets/mocks/mockContract.ts';
 
 const isPaymentScreen = ref(false);
 const selectedContract = ref<Contract | null>(null);
