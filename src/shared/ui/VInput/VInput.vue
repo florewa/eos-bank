@@ -69,7 +69,7 @@ input {
   cursor: pointer;
   color: var(--red-third);
   position: absolute;
-  right: 24px;
+  right: 25px;
   top: 50%;
   transform: translateY(-50%);
   width: 32px;
