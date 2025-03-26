@@ -13,7 +13,10 @@ const isShift = ref(false);
 
 const showKeyboard = (e: Event) => {
   const target = e.target as HTMLInputElement;
-  if (target.tagName === 'INPUT') {
+  if (
+    target.tagName === 'INPUT' &&
+    !target.classList.contains('sms-code__input-digit')
+  ) {
     activeInput.value = target;
     isVisible.value = true;
   }
@@ -22,6 +25,10 @@ const showKeyboard = (e: Event) => {
 const hideKeyboard = () => {
   isVisible.value = false;
   activeInput.value = null;
+};
+
+const handleGlobalHide = () => {
+  hideKeyboard();
 };
 
 const handleKeyPress = (key: string) => {
@@ -70,10 +77,12 @@ const moveToNextField = () => {
 
 onMounted(() => {
   document.addEventListener('click', showKeyboard);
+  document.addEventListener('hideKeyboard', handleGlobalHide);
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', showKeyboard);
+  document.removeEventListener('hideKeyboard', handleGlobalHide);
 });
 </script>
 

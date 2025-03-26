@@ -8,20 +8,26 @@ defineProps<{
   openModal: () => void;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'open-agreements-modal', spanText: string): void;
-  (e: 'login'): void;
+  (e: 'login', phone: string): void;
 }>();
 
 const id = ref('');
 const sum = ref('');
+const phone = ref('');
 const isAgreementAccepted = ref(false);
+
+const handleSubmit = () => {
+  document.dispatchEvent(new Event('hideKeyboard'));
+  emit('login', phone.value);
+};
 </script>
 
 <template>
   <form
     class="account-authorization__form by-personal"
-    @submit.prevent="$emit('login')"
+    @submit.prevent="handleSubmit"
   >
     <div class="account-authorization__form-inner">
       <div class="account-authorization__form-label">Фамилия</div>
@@ -48,13 +54,15 @@ const isAgreementAccepted = ref(false);
         class="account-authorization__form-input"
         v-model="sum"
         placeholder="Дата рождения"
+        v-maska="'##.##.####'"
       />
       <div class="account-authorization__form-label">Телефон</div>
       <div class="account-authorization__form-label" />
       <VInput
         class="account-authorization__form-input"
-        v-model="sum"
+        v-model="phone"
         placeholder="Телефон"
+        v-maska="'+7 (###) ###-##-##'"
       />
       <VButton variant="primary" type="submit">Войти</VButton>
       <VCheckbox

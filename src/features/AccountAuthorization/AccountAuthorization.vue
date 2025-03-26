@@ -5,7 +5,7 @@ import { AuthById, AuthByPersonal } from '@/features/AccountAuthorization';
 import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
 
 defineEmits<{
-  (e: 'login'): void;
+  (e: 'login', phone: string): void;
 }>();
 
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
@@ -60,13 +60,13 @@ const openModalBySpanText = (spanText: string) => {
         v-show="activeAuthMethod === 'id'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"
-        @login="$emit('login')"
+        @login="$emit('login', $event)"
       />
       <AuthByPersonal
         v-show="activeAuthMethod === 'personal'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"
-        @login="$emit('login')"
+        @login="$emit('login', $event)"
       />
       <IDModal ref="IDModalRef" />
       <AgreementsModal full-width ref="agreementsModalRef" />

@@ -1,6 +1,7 @@
 import '@/app/assets/styles/main.scss';
 
 import { VueQueryPlugin } from '@tanstack/vue-query';
+import { vMaska } from 'maska/vue';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
@@ -18,5 +19,7 @@ app
   })
   .use(router)
   .use(createPinia());
+
+app.directive('maska', vMaska);
 
 app.mount('#app');
