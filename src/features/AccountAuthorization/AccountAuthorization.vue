@@ -4,6 +4,10 @@ import { ref } from 'vue';
 import { AuthById, AuthByPersonal } from '@/features/AccountAuthorization';
 import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
 
+defineEmits<{
+  (e: 'login'): void;
+}>();
+
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
 const agreementsModalRef = ref<InstanceType<typeof AgreementsModal> | null>(
   null
@@ -56,11 +60,13 @@ const openModalBySpanText = (spanText: string) => {
         v-show="activeAuthMethod === 'id'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"
+        @login="$emit('login')"
       />
       <AuthByPersonal
         v-show="activeAuthMethod === 'personal'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"
+        @login="$emit('login')"
       />
       <IDModal ref="IDModalRef" />
       <AgreementsModal full-width ref="agreementsModalRef" />

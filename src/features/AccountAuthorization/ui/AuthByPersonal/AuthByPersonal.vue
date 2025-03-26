@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
@@ -11,9 +10,8 @@ defineProps<{
 
 defineEmits<{
   (e: 'open-agreements-modal', spanText: string): void;
+  (e: 'login'): void;
 }>();
-
-const router = useRouter();
 
 const id = ref('');
 const sum = ref('');
@@ -21,7 +19,10 @@ const isAgreementAccepted = ref(false);
 </script>
 
 <template>
-  <form class="account-authorization__form by-personal">
+  <form
+    class="account-authorization__form by-personal"
+    @submit.prevent="$emit('login')"
+  >
     <div class="account-authorization__form-inner">
       <div class="account-authorization__form-label">Фамилия</div>
       <div class="account-authorization__form-label">Имя</div>
@@ -55,9 +56,7 @@ const isAgreementAccepted = ref(false);
         v-model="sum"
         placeholder="Телефон"
       />
-      <VButton variant="primary" type="button" @click="router.push('/cabinet')">
-        Войти
-      </VButton>
+      <VButton variant="primary" type="submit">Войти</VButton>
       <VCheckbox
         id="agreement-checkbox"
         v-model="isAgreementAccepted"
