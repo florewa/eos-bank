@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VKeyboard } from '@/shared/ui';
 import { TheFooter, TheHeader } from '@/widgets';
 </script>
 
@@ -11,6 +12,7 @@ import { TheFooter, TheHeader } from '@/widgets';
       </div>
     </main>
     <TheFooter />
+    <VKeyboard />
   </div>
 </template>
 

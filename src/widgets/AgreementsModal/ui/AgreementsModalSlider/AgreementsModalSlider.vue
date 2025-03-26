@@ -5,20 +5,23 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-import img1 from '@/shared/assets/img/Agreement_Страница_1.png';
-import img2 from '@/shared/assets/img/Agreement_Страница_1.png';
-import img3 from '@/shared/assets/img/Agreement_Страница_1.png';
+import img1 from '@/shared/assets/img/Agreement-1.png';
+import img2 from '@/shared/assets/img/Agreement-2.png';
+import img3 from '@/shared/assets/img/Agreement-3.png';
+import img4 from '@/shared/assets/img/Agreement-4.png';
+import img5 from '@/shared/assets/img/Agreement-5.png';
+import img6 from '@/shared/assets/img/Agreement-6.png';
 import { VButton } from '@/shared/ui';
 
 let swiperInstance: Swiper | null = null;
 const currentPage = ref(1);
-const images = [img1, img2, img3];
+const images = [img1, img2, img3, img4, img5, img6];
 const totalPages = images.length;
 
 onMounted(() => {
   swiperInstance = new Swiper('.swiper', {
     modules: [Navigation],
-    loop: true,
+    loop: false,
     navigation: {
       nextEl: '.swiper-button-next',
       prevEl: '.swiper-button-prev',

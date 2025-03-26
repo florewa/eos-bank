@@ -65,5 +65,5 @@ const isAgreementAccepted = ref(false);
 </template>
 
 <style scoped lang="scss">
-@import '@/features/AccountAuthorization/ui/AuthFormStyles';
+@use '@/features/AccountAuthorization/ui/AuthFormStyles';
 </style>

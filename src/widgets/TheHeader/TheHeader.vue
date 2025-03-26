@@ -1,10 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import srcLogo from '@/shared/assets/img/logo.svg?url';
+</script>
 
 <template>
   <header class="header">
     <div class="header__inner container">
       <div class="header__body">
-        <img src="/img/logo.svg" alt="logo" width="179" height="64" />
+        <img :src="srcLogo" alt="logo" width="179" height="64" />
         <div class="h1">ООО ПКО «ЭОС»</div>
       </div>
     </div>
