@@ -7,3 +7,4 @@ export { IDModal } from './IDModal';
 export { AgreementsModal } from './AgreementsModal';
 export { PolicyModal } from './PolicyModal';
 export { PromotionsModal } from './PromotionsModal';
+export { LoaderModal } from './LoaderModal';

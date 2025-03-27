@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 export const API_URL = window.API;
 
@@ -9,9 +10,28 @@ export const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.interceptors.response.use(
-  (response) => response,
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const globalStore = useGlobalStore();
+    globalStore.setIsLoading(true);
+    return config;
+  },
   (error) => {
+    const globalStore = useGlobalStore();
+    globalStore.setIsLoading(false);
+    return Promise.reject(error);
+  }
+);
+
+axiosInstance.interceptors.response.use(
+  (response) => {
+    const globalStore = useGlobalStore();
+    globalStore.setIsLoading(false);
+    return response;
+  },
+  (error) => {
+    const globalStore = useGlobalStore();
+    globalStore.setIsLoading(false);
     if (axios.isAxiosError(error)) {
       console.error(
         `Axios error ${error.response?.status}:`,

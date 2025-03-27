@@ -1,6 +1,31 @@
 <script setup lang="ts">
 import { VKeyboard } from '@/shared/ui';
-import { TheFooter, TheHeader } from '@/widgets';
+import { LoaderModal, TheFooter, TheHeader } from '@/widgets';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
+import { onMounted, ref, watch } from 'vue';
+
+const globalStore = useGlobalStore();
+const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
+
+watch(
+  () => globalStore.isLoading,
+  (newValue) => {
+    if (LoaderModalRef.value) {
+      if (newValue) {
+        LoaderModalRef.value.open();
+      } else {
+        LoaderModalRef.value.close();
+      }
+    }
+  }
+);
+
+onMounted(() => {
+  globalStore.setIsLoading(true);
+  setTimeout(() => {
+    globalStore.setIsLoading(false);
+  }, 5000000);
+});
 </script>
 
 <template>
@@ -13,6 +38,7 @@ import { TheFooter, TheHeader } from '@/widgets';
     </main>
     <TheFooter />
     <VKeyboard />
+    <LoaderModal ref="LoaderModalRef" />
   </div>
 </template>
 

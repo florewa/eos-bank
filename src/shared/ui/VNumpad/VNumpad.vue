@@ -144,9 +144,9 @@ defineExpose({
             </div>
           </div>
         </div>
-        <div class="numpad__close" @click="$emit('close')">
-          <IconClose />
-        </div>
+        <!--        <div class="numpad__close" @click="$emit('close')">-->
+        <!--          <IconClose />-->
+        <!--        </div>-->
       </div>
     </div>
   </section>
