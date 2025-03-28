@@ -4,9 +4,16 @@ import { defineEmits, defineProps, computed } from 'vue';
 const props = defineProps<{
   isOpen: boolean;
   fullWidth?: boolean;
+  clickOutsideClose?: boolean;
 }>();
 
 const emit = defineEmits(['close']);
+
+const handleOverlayClick = () => {
+  if (props.clickOutsideClose) {
+    emit('close');
+  }
+};
 
 const modalClasses = computed(() => ({
   'modal-content': true,
@@ -17,7 +24,7 @@ const modalClasses = computed(() => ({
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="isOpen" class="modal-overlay" @click="emit('close')">
+      <div v-if="isOpen" class="modal-overlay" @click="handleOverlayClick">
         <div :class="modalClasses" @click.stop>
           <slot />
         </div>

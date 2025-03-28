@@ -19,7 +19,7 @@ defineExpose({ open, close });
 </script>
 
 <template>
-  <VModal :is-open="isOpen" @close="close">
+  <VModal :is-open="isOpen" @close="close" :click-outside-close="false">
     <div class="modal-loader">
       <div class="modal-loader__inner">
         <h1 class="modal-loader__title">Пожалуйста, подождите</h1>

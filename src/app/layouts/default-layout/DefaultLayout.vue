@@ -24,7 +24,7 @@ onMounted(() => {
   globalStore.setIsLoading(true);
   setTimeout(() => {
     globalStore.setIsLoading(false);
-  }, 5000000);
+  }, 1500);
 });
 </script>
 
