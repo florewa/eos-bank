@@ -6,6 +6,7 @@ const props = defineProps<{
   numpadMethods?: {
     setActiveInput: (input: HTMLInputElement | null) => void;
   };
+  error?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -67,18 +68,22 @@ const handleKeydown = (index: number, event: KeyboardEvent) => {
       type="text"
       maxlength="1"
       class="sms-code__input-digit"
+      :class="{ 'sms-code__input-digit--error': error }"
       @input="handleInput(index, $event)"
       @keydown="handleKeydown(index, $event)"
       @focus="setActiveInput($event.target)"
       ref="inputs"
     />
   </div>
+  <div v-if="error" class="sms-code__error">{{ error }}</div>
 </template>
 
 <style scoped>
 .sms-code__inputs {
   display: flex;
   gap: 10px;
+  flex-direction: row;
+  align-items: center;
 }
 
 .sms-code__input-digit {
@@ -94,5 +99,15 @@ const handleKeydown = (index: number, event: KeyboardEvent) => {
 
 .sms-code__input-digit:focus {
   border: 2px solid var(--red-primary);
+}
+
+.sms-code__input-digit--error {
+  border: 2px solid var(--system-colors-error);
+}
+
+.sms-code__error {
+  color: var(--system-colors-error);
+  font-weight: 700;
+  font-size: 20px;
 }
 </style>

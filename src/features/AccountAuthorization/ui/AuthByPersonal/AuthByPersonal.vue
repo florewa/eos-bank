@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
+import { computed, ref } from 'vue';
+import * as Yup from 'yup';
+import { authByPersonalSchema } from '@/shared/validation/validationSchemas';
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
 
@@ -13,15 +14,74 @@ const emit = defineEmits<{
   (e: 'login', phone: string): void;
 }>();
 
-const id = ref('');
-const sum = ref('');
+const surname = ref('');
+const name = ref('');
+const patronymic = ref('');
+const birthDate = ref('');
 const phone = ref('');
 const isAgreementAccepted = ref(false);
+const errors = ref<Record<string, string>>({});
 
-const handleSubmit = () => {
-  document.dispatchEvent(new Event('hideKeyboard'));
-  emit('login', phone.value);
+const validateField = async (field: string, value: any) => {
+  try {
+    const schema = Yup.reach(authByPersonalSchema, field) as Yup.AnySchema;
+    await schema.validate(value);
+    if (errors.value[field]) {
+      delete errors.value[field];
+      errors.value = { ...errors.value };
+    }
+  } catch (err) {
+    if (err instanceof Yup.ValidationError) {
+      errors.value[field] = err.message;
+      errors.value = { ...errors.value };
+    }
+  }
 };
+
+const handleInput = (field: string, value: string | boolean) => {
+  validateField(field, value);
+};
+
+const handleSubmit = async () => {
+  try {
+    await authByPersonalSchema.validate(
+      {
+        surname: surname.value,
+        name: name.value,
+        patronymic: patronymic.value,
+        birthDate: birthDate.value,
+        phone: phone.value,
+        isAgreementAccepted: isAgreementAccepted.value,
+      },
+      { abortEarly: false }
+    );
+    errors.value = {};
+    document.dispatchEvent(new Event('hideKeyboard'));
+    emit('login', phone.value);
+  } catch (err) {
+    if (err instanceof Yup.ValidationError) {
+      const newErrors: Record<string, string> = {};
+      err.inner.forEach((error) => {
+        if (error.path) {
+          newErrors[error.path] = error.message;
+        }
+      });
+      errors.value = newErrors;
+    }
+  }
+};
+
+const isFormValid = computed(() => {
+  return (
+    surname.value.trim() !== '' &&
+    name.value.trim() !== '' &&
+    patronymic.value.trim() !== '' &&
+    birthDate.value.trim() !== '' &&
+    phone.value.trim() !== '' &&
+    isAgreementAccepted.value &&
+    Object.keys(errors.value).length === 0
+  );
+});
 </script>
 
 <template>
@@ -34,27 +94,35 @@ const handleSubmit = () => {
       <div class="account-authorization__form-label">Имя</div>
       <VInput
         class="account-authorization__form-input"
-        v-model="id"
+        v-model="surname"
         placeholder="Фамилия"
         @open-modal="openModal"
+        @input="handleInput('surname', surname)"
+        :error="errors.surname"
       />
       <VInput
         class="account-authorization__form-input"
-        v-model="sum"
+        v-model="name"
         placeholder="Имя"
+        @input="handleInput('name', name)"
+        :error="errors.name"
       />
       <div class="account-authorization__form-label">Отчество</div>
       <div class="account-authorization__form-label">Дата рождения</div>
       <VInput
         class="account-authorization__form-input"
-        v-model="sum"
+        v-model="patronymic"
         placeholder="Отчество"
+        @input="handleInput('patronymic', patronymic)"
+        :error="errors.patronymic"
       />
       <VInput
         class="account-authorization__form-input"
-        v-model="sum"
+        v-model="birthDate"
         placeholder="Дата рождения"
         v-maska="'##.##.####'"
+        @input="handleInput('birthDate', birthDate)"
+        :error="errors.birthDate"
       />
       <div class="account-authorization__form-label">Телефон</div>
       <div class="account-authorization__form-label" />
@@ -63,14 +131,22 @@ const handleSubmit = () => {
         v-model="phone"
         placeholder="Телефон"
         v-maska="'+7 (###) ###-##-##'"
+        @input="handleInput('phone', phone)"
+        :error="errors.phone"
       />
-      <VButton variant="primary" type="submit">Войти</VButton>
+      <VButton variant="primary" type="submit" :disabled="!isFormValid">
+        Войти
+      </VButton>
       <VCheckbox
         id="agreement-checkbox"
         v-model="isAgreementAccepted"
         :label="AGREEMENT_TEXT"
         class="agreement-checkbox"
         @span-click="$emit('open-agreements-modal', $event)"
+        @update:modelValue="
+          handleInput('isAgreementAccepted', isAgreementAccepted)
+        "
+        :error="errors.isAgreementAccepted"
       />
     </div>
     <div class="account-authorization__text">

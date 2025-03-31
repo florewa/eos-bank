@@ -19,6 +19,7 @@ const router = useRouter();
 const smsCode = ref(['', '', '', '', '', '']);
 const timer = ref(59);
 const isTimerActive = ref(true);
+const error = ref<string | null>(null);
 
 const numpadMethods = ref<
   | {
@@ -40,7 +41,8 @@ const maskedPhone = computed(() => {
   return `+7 *** *** ** ${lastTwoDigits}`;
 });
 
-let intervalId: number | null = null;
+let intervalId: ReturnType<typeof setInterval> | null = null;
+
 const startTimer = () => {
   intervalId = setInterval(() => {
     if (timer.value > 0) {
@@ -48,6 +50,7 @@ const startTimer = () => {
     } else {
       isTimerActive.value = false;
       clearInterval(intervalId!);
+      intervalId = null;
     }
   }, 1000);
 };
@@ -57,7 +60,10 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
 });
 
 const toBack = () => {
@@ -66,8 +72,14 @@ const toBack = () => {
 };
 
 const submitCode = () => {
-  document.dispatchEvent(new Event('hideNumpad'));
-  router.push('/cabinet');
+  const codeStr = smsCode.value.join('');
+  if (codeStr === '111111') {
+    error.value = null;
+    document.dispatchEvent(new Event('hideNumpad'));
+    router.push('/cabinet');
+  } else {
+    error.value = 'Неверный код';
+  }
 };
 
 const resendCode = () => {
@@ -77,6 +89,7 @@ const resendCode = () => {
     startTimer();
     emit('resend');
     smsCode.value = ['', '', '', '', '', ''];
+    error.value = null;
   }
 };
 
@@ -102,6 +115,7 @@ defineExpose({
         v-model:code="smsCode"
         @submit="submitCode"
         :numpad-methods="numpadMethods"
+        :error="error"
       />
       <div class="sms-code__repeat-action">
         <span v-if="isTimerActive">
@@ -114,9 +128,6 @@ defineExpose({
       <div class="sms-code__help">
         <span>8 (800) 555-17-10</span>
         Звонок по России бесплатный.
-      </div>
-      <div class="sms-code__buttons">
-        <VButton variant="primary" @click="submitCode">Подтвердить</VButton>
       </div>
     </div>
   </section>

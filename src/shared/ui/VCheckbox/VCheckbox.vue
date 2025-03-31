@@ -6,6 +6,7 @@ interface Props {
   id?: string;
   label?: string;
   disabled?: boolean;
+  error?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   id: '',
   label: '',
   disabled: false,
+  error: '',
 });
 
 const emit = defineEmits<{
@@ -54,7 +56,10 @@ const handleLabelClick = (event: Event) => {
     <label :for="id" class="checkbox-label" @click="handleLabelClick">
       <span
         class="checkbox-custom"
-        :class="{ 'checkbox-custom--checked': isChecked }"
+        :class="{
+          'checkbox-custom--checked': isChecked,
+          'checkbox-custom--error': error,
+        }"
         @click="handleCheckboxClick"
       ></span>
       <span
@@ -64,6 +69,7 @@ const handleLabelClick = (event: Event) => {
         @click="handleSpanClick"
       ></span>
     </label>
+    <span v-if="error" class="error-message">{{ error }}</span>
   </div>
 </template>
 
@@ -72,6 +78,7 @@ const handleLabelClick = (event: Event) => {
   position: relative;
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
 
   &--disabled {
     opacity: 0.5;
@@ -113,10 +120,15 @@ const handleLabelClick = (event: Event) => {
 
   &--checked {
     background-color: var(--red-accent);
+    border: 2px solid var(--red-accent);
 
     &::after {
       opacity: 1;
     }
+  }
+
+  &--error {
+    border-color: var(--system-colors-error);
   }
 }
 
@@ -129,5 +141,13 @@ const handleLabelClick = (event: Event) => {
     text-decoration: underline;
     cursor: pointer;
   }
+}
+
+.error-message {
+  font-weight: 600;
+  font-size: 16px;
+  display: block;
+  color: var(--system-colors-error);
+  margin-top: 10px;
 }
 </style>

@@ -31,6 +31,16 @@ const handleGlobalHide = () => {
   hideKeyboard();
 };
 
+const handleClickOutside = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+
+  if (target.tagName === 'INPUT') return;
+
+  if (target.closest('.keyboard')) return;
+
+  hideKeyboard();
+};
+
 const handleKeyPress = (key: string) => {
   if (!activeInput.value) return;
 
@@ -45,7 +55,12 @@ const handleKeyPress = (key: string) => {
       activeInput.value.value += ' ';
       break;
     case 'Ввод':
-      activeInput.value.blur();
+      const form = activeInput.value.closest('form');
+      if (form) {
+        form.dispatchEvent(
+          new Event('submit', { bubbles: true, cancelable: true })
+        );
+      }
       hideKeyboard();
       break;
     default:
@@ -54,12 +69,16 @@ const handleKeyPress = (key: string) => {
       if (isShift.value) isShift.value = false;
       break;
   }
-  activeInput.value.dispatchEvent(new Event('input', { bubbles: true }));
+
+  if (activeInput.value) {
+    activeInput.value.dispatchEvent(new Event('input', { bubbles: true }));
+  }
 };
 
 const moveToPrevField = () => {
+  if (!activeInput.value) return;
   const inputs = Array.from(document.querySelectorAll('input'));
-  const currentIndex = inputs.indexOf(activeInput.value!);
+  const currentIndex = inputs.indexOf(activeInput.value);
   if (currentIndex > 0) {
     activeInput.value = inputs[currentIndex - 1] as HTMLInputElement;
     activeInput.value.focus();
@@ -67,8 +86,9 @@ const moveToPrevField = () => {
 };
 
 const moveToNextField = () => {
+  if (!activeInput.value) return;
   const inputs = Array.from(document.querySelectorAll('input'));
-  const currentIndex = inputs.indexOf(activeInput.value!);
+  const currentIndex = inputs.indexOf(activeInput.value);
   if (currentIndex < inputs.length - 1) {
     activeInput.value = inputs[currentIndex + 1] as HTMLInputElement;
     activeInput.value.focus();
@@ -77,11 +97,13 @@ const moveToNextField = () => {
 
 onMounted(() => {
   document.addEventListener('click', showKeyboard);
+  document.addEventListener('click', handleClickOutside);
   document.addEventListener('hideKeyboard', handleGlobalHide);
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', showKeyboard);
+  document.removeEventListener('click', handleClickOutside);
   document.removeEventListener('hideKeyboard', handleGlobalHide);
 });
 </script>
@@ -275,6 +297,7 @@ onUnmounted(() => {
     }
   }
 }
+
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease;
