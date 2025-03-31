@@ -21,4 +21,9 @@ export const routes = [
     name: 'cabinet',
     component: () => import('@/pages/cabinet-page'),
   },
+  {
+    path: AppRoutes.PAYMENT,
+    name: 'payment',
+    component: () => import('@/pages/payment-page'),
+  },
 ];
