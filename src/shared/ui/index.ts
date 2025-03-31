@@ -4,3 +4,4 @@ export { VModal } from './VModal';
 export { VCheckbox } from './VCheckbox';
 export { VKeyboard } from './VKeyboard';
 export { VNumpad } from './VNumpad';
+export { InactivityModal } from './InactivityModal';

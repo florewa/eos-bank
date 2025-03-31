@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-
 import { DefaultLayout } from '@/app/layouts';
+import { InactivityModal } from '@/shared/ui';
+import { useInactivity } from '@/shared/lib/hooks/useInactivity.ts';
 
 const route = useRoute();
-
 const layout = computed(() => route.meta.layout || DefaultLayout);
+const modalRef = ref(null);
+
+useInactivity(modalRef);
 </script>
 
 <template>
@@ -25,6 +28,7 @@ const layout = computed(() => route.meta.layout || DefaultLayout);
       </template>
     </component>
   </transition>
+  <InactivityModal ref="modalRef" />
 </template>
 
 <style scoped></style>
