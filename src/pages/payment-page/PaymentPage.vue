@@ -1,5 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { PaymentProcedure } from '@/features';
+</script>
 
-<template></template>
+<template>
+  <div class="payment-page">
+    <PaymentProcedure />
+  </div>
+</template>
 
 <style scoped lang="scss"></style>

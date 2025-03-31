@@ -11,6 +11,12 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const selectedPaymentMethod = ref<'card' | 'sbp' | null>(null);
+
+const selectPaymentMethod = (method: 'card' | 'sbp') => {
+  selectedPaymentMethod.value = method;
+};
+
 const payDebtSchema = Yup.object({
   id: Yup.string()
     .min(5, 'ID должен содержать минимум 5 символов')
@@ -59,8 +65,15 @@ const handleSubmit = async () => {
       { abortEarly: false }
     );
     errors.value = {};
-    await router.push('/payment');
-    console.log('Оплата:', { id: id.value, sum: sum.value });
+    await router.push({
+      path: '/payment',
+      query: { method: selectedPaymentMethod.value },
+    });
+    console.log('Оплата:', {
+      id: id.value,
+      sum: sum.value,
+      method: selectedPaymentMethod.value,
+    });
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
       const newErrors: Record<string, string> = {};
@@ -129,6 +142,7 @@ const isFormValid = computed(() => {
             type="submit"
             class="pay-debt__button-card"
             :disabled="!isFormValid"
+            @click="selectPaymentMethod('card')"
           >
             Оплатить картой
             <IconMasterCard />
@@ -140,6 +154,7 @@ const isFormValid = computed(() => {
             type="submit"
             class="pay-debt__button-sbp"
             :disabled="!isFormValid"
+            @click="selectPaymentMethod('sbp')"
           >
             Оплатить через СБП
             <img :src="IconSBP" alt="" />
