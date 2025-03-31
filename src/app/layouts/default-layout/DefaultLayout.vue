@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { VKeyboard } from '@/shared/ui';
-import { LoaderModal, TheFooter, TheHeader } from '@/widgets';
+import {
+  LoaderModal,
+  SuccessPaymentModal,
+  TheFooter,
+  TheHeader,
+} from '@/widgets';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { onMounted, ref, watch } from 'vue';
 
 const globalStore = useGlobalStore();
 const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
+const SuccessModalRef = ref<InstanceType<typeof SuccessPaymentModal> | null>(
+  null
+);
 
 watch(
   () => globalStore.isLoading,
@@ -20,11 +28,30 @@ watch(
   }
 );
 
+watch(
+  () => globalStore.isSuccess,
+  (newValue) => {
+    if (SuccessModalRef.value) {
+      if (newValue) {
+        SuccessModalRef.value.open();
+      } else {
+        SuccessModalRef.value.close();
+      }
+    }
+  }
+);
+
 onMounted(() => {
   globalStore.setIsLoading(true);
+  globalStore.setIsSuccess(false);
+
   setTimeout(() => {
     globalStore.setIsLoading(false);
   }, 1500);
+
+  setTimeout(() => {
+    globalStore.setIsSuccess(true);
+  }, 2000);
 });
 </script>
 
@@ -39,6 +66,7 @@ onMounted(() => {
     <TheFooter />
     <VKeyboard />
     <LoaderModal ref="LoaderModalRef" />
+    <SuccessPaymentModal ref="SuccessModalRef" />
   </div>
 </template>
 

@@ -7,6 +7,8 @@
     "baseUrl": ".", // Add this to set the root directory as the base
     "paths": {
       "@/*": ["src/*"] // Update to relative path from baseUrl
-    }
+    },
+    "types": ["node"],
+    "include": ["src", "global.d.ts"]
   }
 }

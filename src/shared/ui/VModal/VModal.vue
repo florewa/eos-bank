@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { defineEmits, defineProps, computed } from 'vue';
 
-const props = defineProps<{
-  isOpen: boolean;
-  fullWidth?: boolean;
-  clickOutsideClose?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    fullWidth?: boolean;
+    clickOutsideClose?: boolean;
+  }>(),
+  {
+    clickOutsideClose: true,
+  }
+);
 
 const emit = defineEmits(['close']);
 
