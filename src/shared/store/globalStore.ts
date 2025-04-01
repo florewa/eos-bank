@@ -13,10 +13,16 @@ export const useGlobalStore = defineStore('globalStore', () => {
     isSuccess.value = bool;
   };
 
+  const reset = () => {
+    isLoading.value = false;
+    isSuccess.value = false;
+  };
+
   return {
     isLoading,
     isSuccess,
     setIsLoading,
     setIsSuccess,
+    reset,
   };
 });

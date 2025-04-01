@@ -1,23 +1,45 @@
 <script setup lang="ts">
-import { VButton } from '@/shared/ui';
-import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
-import picSrc from '@/shared/assets/img/PaymentPic.svg?url';
-import mockQr from '@/shared/assets/img/MockQR.svg?url';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import ReceiptPrintPrompt from '@/pages/payment-page/ui/ReceiptPrintPrompt/ReceiptPrintPrompt.vue';
+import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
+import mockQr from '@/shared/assets/img/MockQR.svg?url';
+import picSrc from '@/shared/assets/img/PaymentPic.svg?url';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
+import { VButton } from '@/shared/ui';
+
+const globalStore = useGlobalStore();
 const route = useRoute();
 const router = useRouter();
 
 const paymentMethod = route.query.method as 'card' | 'sbp' | undefined;
+const isPaymentSuccessful = ref(false);
 
 const goBack = () => {
   router.push('/pay-debt');
 };
+
+onMounted(() => {
+  globalStore.reset();
+
+  setTimeout(() => {
+    globalStore.setIsLoading(true);
+    console.log('Этап 1: Начало оплаты');
+
+    setTimeout(() => {
+      globalStore.setIsLoading(false);
+      globalStore.setIsSuccess(true);
+      console.log('Этап 2: Оплата завершена');
+      isPaymentSuccessful.value = true;
+    }, 4000);
+  }, 4000);
+});
 </script>
 
 <template>
   <section class="payment-procedure">
-    <div class="payment-procedure__inner">
+    <div v-if="!isPaymentSuccessful" class="payment-procedure__inner">
       <div class="payment-procedure__header">
         <VButton
           variant="primary"
@@ -62,12 +84,17 @@ const goBack = () => {
         </div>
       </div>
     </div>
+    <ReceiptPrintPrompt
+      v-else
+      @printReceipt="console.log('Печатаем чек')"
+      @skipReceipt="router.push('/')"
+    />
   </section>
 </template>
 
 <style scoped lang="scss">
 .payment-procedure {
-  height: 77vh;
+  height: 1480px;
 
   &__inner {
     height: 100%;

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { DefaultLayout } from '@/app/layouts';
-import { InactivityModal } from '@/shared/ui';
 import { useInactivity } from '@/shared/lib/hooks/useInactivity.ts';
+import { InactivityModal } from '@/shared/ui';
 
 const route = useRoute();
 const layout = computed(() => route.meta.layout || DefaultLayout);

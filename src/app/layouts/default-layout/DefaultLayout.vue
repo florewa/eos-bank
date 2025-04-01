@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { onMounted, ref, watch } from 'vue';
+
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { VKeyboard } from '@/shared/ui';
 import {
   LoaderModal,
@@ -6,8 +9,6 @@ import {
   TheFooter,
   TheHeader,
 } from '@/widgets';
-import { useGlobalStore } from '@/shared/store/globalStore.ts';
-import { onMounted, ref, watch } from 'vue';
 
 const globalStore = useGlobalStore();
 const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
@@ -41,18 +42,18 @@ watch(
   }
 );
 
-onMounted(() => {
-  globalStore.setIsLoading(true);
-  globalStore.setIsSuccess(false);
-
-  setTimeout(() => {
-    globalStore.setIsLoading(false);
-  }, 1500);
-
-  setTimeout(() => {
-    globalStore.setIsSuccess(true);
-  }, 2000);
-});
+// onMounted(() => {
+//   globalStore.setIsLoading(true);
+//   globalStore.setIsSuccess(false);
+//
+//   setTimeout(() => {
+//     globalStore.setIsLoading(false);
+//   }, 1500);
+//
+//   setTimeout(() => {
+//     globalStore.setIsSuccess(true);
+//   }, 2000);
+// });
 </script>
 
 <template>
