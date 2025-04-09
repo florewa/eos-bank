@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { sendMetrikaGoal } from '@/shared/lib/metrica/sendMetrikaGoal.ts';
+import { sendMetrikaGoal } from '@/shared/lib/metrika/sendMetrikaGoal.ts';
 import { VButton } from '@/shared/ui';
 import { CabinetModal } from '@/widgets/CabinetModal';
 

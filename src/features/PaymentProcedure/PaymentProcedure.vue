@@ -94,7 +94,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .payment-procedure {
-  height: 1480px;
+  height: 1475px;
 
   &__inner {
     height: 100%;

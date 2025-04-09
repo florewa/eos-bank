@@ -2,11 +2,18 @@
 import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
 import receiptSrc from '@/shared/assets/img/Receipt.svg?url';
 import { VButton } from '@/shared/ui';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const emit = defineEmits(['printReceipt', 'skipReceipt']);
 
 const printReceipt = () => emit('printReceipt');
 const skipReceipt = () => emit('skipReceipt');
+
+const goBack = () => {
+  router.push('/');
+};
 </script>
 
 <template>
@@ -28,14 +35,14 @@ const skipReceipt = () => emit('skipReceipt');
       <div class="receipt-prompt__actions">
         <VButton
           variant="primary"
-          @click="printReceipt"
+          @click="skipReceipt"
           class="receipt-prompt__btn"
         >
           Не печатать
         </VButton>
         <VButton
           variant="outline"
-          @click="skipReceipt"
+          @click="printReceipt"
           class="receipt-prompt__btn"
         >
           Распечатать
@@ -55,7 +62,6 @@ const skipReceipt = () => emit('skipReceipt');
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 80px;
     text-align: center;
   }

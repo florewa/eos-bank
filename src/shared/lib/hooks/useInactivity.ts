@@ -8,56 +8,71 @@ interface InactivityModal {
   close: () => void;
 }
 
-export function useInactivity(modalRef: Ref<InactivityModal | null>) {
-  const route: RouteLocationNormalizedLoaded = useRoute();
+export function useInactivity(
+  modalRef: Ref<InactivityModal | null>,
+  isStandby: Ref<boolean>
+) {
+  const route = useRoute();
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  const resetTimer = (): void => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
+  const resetTimer = () => {
+    if (timeoutId) clearTimeout(timeoutId);
 
-    if (route.path === '/') {
-      return;
-    }
-
-    const timeoutDuration: number =
+    const timeoutDuration =
       route.path === '/payment' ? window.TIMEOUT_IN_PAYMENT : window.TIMEOUT;
+    console.log(
+      '[useInactivity] Установка таймера на',
+      timeoutDuration / 1000,
+      'секунд'
+    );
 
     timeoutId = setTimeout(() => {
       if (modalRef.value) {
+        console.log('[useInactivity] Открытие модального окна');
         modalRef.value.open();
+
+        setTimeout(() => {
+          if (modalRef.value && !isStandby.value) {
+            console.log('[useInactivity] Вход в режим ожидания');
+            isStandby.value = true;
+            modalRef.value.close();
+          } else {
+            console.log(
+              '[useInactivity] Не удалось войти в режим ожидания, isStandby уже true или modalRef недоступен'
+            );
+          }
+        }, 60000);
+      } else {
+        console.log('[useInactivity] modalRef не определен');
       }
     }, timeoutDuration);
   };
 
-  const activityEvents: string[] = ['touchstart', 'touchmove', 'touchend'];
+  const activityEvents = ['touchstart', 'touchmove', 'touchend'];
 
-  const handleActivity = (): void => {
-    if (route.path !== '/') {
-      resetTimer();
-    }
+  const handleActivity = () => {
+    console.log('[useInactivity] Активность пользователя, сброс таймера');
+    resetTimer();
   };
 
-  onMounted((): void => {
-    activityEvents.forEach((event: string): void => {
+  onMounted(() => {
+    activityEvents.forEach((event) => {
       window.addEventListener(event, handleActivity);
     });
     resetTimer();
   });
 
-  onUnmounted((): void => {
-    activityEvents.forEach((event: string): void => {
+  onUnmounted(() => {
+    activityEvents.forEach((event) => {
       window.removeEventListener(event, handleActivity);
     });
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
+    if (timeoutId) clearTimeout(timeoutId);
   });
 
   watch(
     () => route.path,
     () => {
+      console.log('[useInactivity] Маршрут изменился, сброс таймера');
       resetTimer();
     }
   );

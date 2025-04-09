@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, defineEmits } from 'vue';
 import warningSrc from '@/shared/assets/img/Warning.svg?url';
 import { VButton, VModal } from '@/shared/ui';
 import { useRouter } from 'vue-router';
+
+const emit = defineEmits(['update:standby']);
 
 const router = useRouter();
 const isOpen = ref(false);
@@ -30,11 +32,11 @@ const close = () => {
     clearInterval(interval);
     interval = null;
   }
-  window.dispatchEvent(new Event('touchstart'));
 };
 
 const goHome = () => {
   close();
+  emit('update:standby', true);
   router.push('/');
 };
 

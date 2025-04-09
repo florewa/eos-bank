@@ -7,7 +7,7 @@ import IconMasterCard from '@/shared/assets/icons/IconMasterCard.svg';
 import IconMir from '@/shared/assets/icons/IconMir.svg';
 import IconSBP from '@/shared/assets/icons/IconSBP.svg?url';
 import IconVisa from '@/shared/assets/icons/IconVisa.svg';
-import { sendMetrikaGoal } from '@/shared/lib/metrica/sendMetrikaGoal.ts';
+import { sendMetrikaGoal } from '@/shared/lib/metrika/sendMetrikaGoal.ts';
 import { VButton, VInput } from '@/shared/ui';
 import { IDModal } from '@/widgets';
 
