@@ -7,6 +7,10 @@ import IconDocument from '@/shared/assets/icons/IconDocument.svg';
 import IconHuman from '@/shared/assets/icons/IconHuman.svg';
 import IconProtectedList from '@/shared/assets/icons/IconProtectedList.svg';
 import { VButton } from '@/shared/ui';
+import { getCurrentInstance } from 'vue';
+
+const app = getCurrentInstance();
+const metrika = app?.appContext.config.globalProperties.$metrika;
 
 const router = useRouter();
 
@@ -17,6 +21,13 @@ const actions = [
   { icon: IconCards, text: 'Получить деньги на карту', path: '/get-money' },
   { icon: IconProtectedList, text: 'Оформить ОСАГО', path: '/insurance' },
 ];
+
+const handleClick = (path: string) => {
+  const goalName = `main-action-${path.replace('/', '')}`; // Например, "main-action-debt-info"
+  metrika?.('12345678', 'reachGoal', goalName); // Отправляем цель в Метрику
+  console.log(`Sent goal to Yandex Metrika: ${goalName}`); // Для отладки
+  router.push(path); // Переход по маршруту
+};
 </script>
 
 <template>
@@ -25,7 +36,7 @@ const actions = [
       v-for="(action, index) in actions"
       :key="index"
       variant="primary"
-      @click="router.push(action.path)"
+      @click="handleClick(action.path)"
       big
     >
       <component :is="action.icon" />
