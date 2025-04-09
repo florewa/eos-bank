@@ -1,8 +1,16 @@
+/// <reference types="vue/macros-global" />
+import type { YandexMetrika } from 'vue-yandex-metrika';
+
 export {};
 
 declare global {
   interface Window {
     API: string;
-    ym: (id: string | number, method: string, ...args: any[]) => void;
+  }
+}
+
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    $metrika: YandexMetrika;
   }
 }

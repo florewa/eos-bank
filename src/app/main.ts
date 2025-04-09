@@ -22,7 +22,7 @@ app
   .use(router)
   .use(createPinia())
   .use(VueYandexMetrika, {
-    id: '12345678', // Замените на ваш номер счетчика
+    id: '100902026', // Замените на ваш номер счетчика
     router, // Ваш роутер
     env: process.env.NODE_ENV, // Среда выполнения
     options: {
@@ -32,12 +32,6 @@ app
       webvisor: true,
     },
     debug: true, // Логи для отладки
-  });
-
-app.config.globalProperties.$metrika =
-  window.ym ||
-  (() => {
-    console.warn('Yandex Metrika not initialized');
   });
 
 app.directive('maska', vMaska);

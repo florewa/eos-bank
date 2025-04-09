@@ -1,14 +1,20 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["types", "src", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "baseUrl": ".", // Add this to set the root directory as the base
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"] // Update to relative path from baseUrl
+      "@/*": ["src/*"]
     },
-    "types": ["node"],
-    "include": ["src", "global.d.ts"]
-  }
+    "types": ["node"]
+  },
+  "include": [
+    "types",
+    "src",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/global.d.ts"
+  ]
 }
