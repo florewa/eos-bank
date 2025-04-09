@@ -17,6 +17,10 @@ export function useInactivity(modalRef: Ref<InactivityModal | null>) {
       clearTimeout(timeoutId);
     }
 
+    if (route.path === '/') {
+      return;
+    }
+
     const timeoutDuration: number =
       route.path === '/payment' ? window.TIMEOUT_IN_PAYMENT : window.TIMEOUT;
 
@@ -30,7 +34,9 @@ export function useInactivity(modalRef: Ref<InactivityModal | null>) {
   const activityEvents: string[] = ['touchstart', 'touchmove', 'touchend'];
 
   const handleActivity = (): void => {
-    resetTimer();
+    if (route.path !== '/') {
+      resetTimer();
+    }
   };
 
   onMounted((): void => {
