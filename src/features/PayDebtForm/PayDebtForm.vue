@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import * as Yup from 'yup';
+
 import IconMasterCard from '@/shared/assets/icons/IconMasterCard.svg';
 import IconMir from '@/shared/assets/icons/IconMir.svg';
 import IconSBP from '@/shared/assets/icons/IconSBP.svg?url';
 import IconVisa from '@/shared/assets/icons/IconVisa.svg';
+import { sendMetrikaGoal } from '@/shared/lib/metrica/sendMetrikaGoal.ts';
 import { VButton, VInput } from '@/shared/ui';
 import { IDModal } from '@/widgets';
-import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
@@ -38,7 +40,7 @@ const openModal = () => {
   }
 };
 
-const validateField = async (field: string, value: any) => {
+const validateField = async (field: string, value: string) => {
   try {
     const schema = Yup.reach(payDebtSchema, field) as Yup.AnySchema;
     await schema.validate(value);
@@ -65,10 +67,18 @@ const handleSubmit = async () => {
       { abortEarly: false }
     );
     errors.value = {};
+
+    if (selectedPaymentMethod.value === 'card') {
+      sendMetrikaGoal('pay-debt-card');
+    } else if (selectedPaymentMethod.value === 'sbp') {
+      sendMetrikaGoal('pay-debt-sbp');
+    }
+
     await router.push({
       path: '/payment',
       query: { method: selectedPaymentMethod.value },
     });
+
     console.log('Оплата:', {
       id: id.value,
       sum: sum.value,

@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { RouteLocationNormalizedLoaded } from 'vue-router';
@@ -18,7 +18,7 @@ export function useInactivity(modalRef: Ref<InactivityModal | null>) {
     }
 
     const timeoutDuration: number =
-      route.path === '/payment' ? 5 * 60 * 1000 : 3 * 60 * 1000;
+      route.path === '/payment' ? window.TIMEOUT_IN_PAYMENT : window.TIMEOUT;
 
     timeoutId = setTimeout(() => {
       if (modalRef.value) {

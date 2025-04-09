@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 
 import IconCards from '@/shared/assets/icons/IconCards.svg';
@@ -8,9 +7,6 @@ import IconDocument from '@/shared/assets/icons/IconDocument.svg';
 import IconHuman from '@/shared/assets/icons/IconHuman.svg';
 import IconProtectedList from '@/shared/assets/icons/IconProtectedList.svg';
 import { VButton } from '@/shared/ui';
-
-const { proxy } = getCurrentInstance()!;
-const metrika = proxy?.$metrika;
 
 const router = useRouter();
 
@@ -24,7 +20,7 @@ const actions = [
 
 const handleClick = (path: string) => {
   const goalName = `main-action-${path.replace('/', '')}`;
-  metrika?.('reachGoal', goalName);
+  window.ym?.(100902026, 'reachGoal', goalName);
   console.log(`Sent goal to Yandex Metrika: ${goalName}`);
   router.push(path);
 };

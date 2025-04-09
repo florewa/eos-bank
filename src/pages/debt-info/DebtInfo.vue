@@ -16,6 +16,7 @@ interface SMSConfirmationExposed {
     setActiveInput: (input: HTMLInputElement | null) => void;
   }) => void;
 }
+
 const handleLogin = (phone: string) => {
   phoneNumber.value = phone;
   showSMSCode.value = true;

@@ -33,6 +33,11 @@ const close = () => {
   window.dispatchEvent(new Event('touchstart'));
 };
 
+const goHome = () => {
+  close();
+  router.push('/');
+};
+
 defineExpose({ open, close });
 </script>
 
@@ -49,7 +54,7 @@ defineExpose({ open, close });
           <span>{{ timer }}</span> секунд
         </div>
         <div class="modal__actions">
-          <VButton variant="outline" @click="router.push('/')">Выйти</VButton>
+          <VButton variant="outline" @click="goHome">Выйти</VButton>
           <VButton variant="primary" @click="close">Продолжить</VButton>
         </div>
       </div>

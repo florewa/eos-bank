@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 import IconInfo from '@/shared/assets/icons/IconInfo.svg';
 import IconQuestion from '@/shared/assets/icons/IconQuestion.svg';
 import IconQuit from '@/shared/assets/icons/IconQuit.svg';
+import { sendMetrikaGoal } from '@/shared/lib/metrica/sendMetrikaGoal.ts';
 import { VButton } from '@/shared/ui';
 import { AboutModal, HelpModal } from '@/widgets';
 
@@ -17,7 +18,18 @@ const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 const isHome = computed(() => route.path === '/');
 
 const goHome = () => {
+  sendMetrikaGoal('go-main-from-footer');
   router.push('/');
+};
+
+const openHelpModal = () => {
+  sendMetrikaGoal('open-help-modal');
+  helpModalRef.value?.open();
+};
+
+const openAboutModal = () => {
+  sendMetrikaGoal('open-about-modal');
+  aboutModalRef.value?.open();
 };
 </script>
 
@@ -26,7 +38,7 @@ const goHome = () => {
     <div class="footer__inner container">
       <div class="footer__body">
         <template v-if="!isHome">
-          <VButton variant="outline" big @click="helpModalRef?.open()">
+          <VButton variant="outline" big @click="openHelpModal">
             <IconQuestion />
             ПОМОЩЬ
           </VButton>
@@ -37,11 +49,11 @@ const goHome = () => {
         </template>
 
         <template v-else>
-          <VButton variant="primary" big @click="aboutModalRef?.open()">
+          <VButton variant="primary" big @click="openAboutModal">
             <IconInfo />
             О компании
           </VButton>
-          <VButton variant="primary" big @click="helpModalRef?.open()">
+          <VButton variant="primary" big @click="openHelpModal">
             <IconQuestion />
             Помощь
           </VButton>

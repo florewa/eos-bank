@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+import { sendMetrikaGoal } from '@/shared/lib/metrica/sendMetrikaGoal.ts';
 import { VButton } from '@/shared/ui';
 import { CabinetModal } from '@/widgets/CabinetModal';
 
 const cabinetModalRef = ref<InstanceType<typeof CabinetModal> | null>(null);
+
+const moreAboutCabinet = () => {
+  sendMetrikaGoal('more-about-cabinet');
+  cabinetModalRef.value?.open();
+};
 </script>
 
 <template>
@@ -14,7 +20,7 @@ const cabinetModalRef = ref<InstanceType<typeof CabinetModal> | null>(null);
         Личный кабинет — простой способ узнать о долге
       </div>
       <div class="detail-cabinet__action">
-        <VButton variant="outline" @click="cabinetModalRef?.open()">
+        <VButton variant="outline" @click="moreAboutCabinet">
           Подробнее
         </VButton>
       </div>
