@@ -20,7 +20,7 @@ const actions = [
 
 const handleClick = (path: string) => {
   const goalName = `main-action-${path.replace('/', '')}`;
-  window.ym?.(100902026, 'reachGoal', goalName);
+  window.ym?.(100955373, 'reachGoal', goalName);
   console.log(`Sent goal to Yandex Metrika: ${goalName}`);
   router.push(path);
 };

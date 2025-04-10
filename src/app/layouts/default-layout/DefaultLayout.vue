@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
-import { VKeyboard } from '@/shared/ui';
+import { InactivityModal, VKeyboard } from '@/shared/ui';
 import {
   LoaderModal,
   SuccessPaymentModal,
   TheFooter,
   TheHeader,
 } from '@/widgets';
+import { useInactivity } from '@/shared/lib/hooks/useInactivity.ts';
+import StandbyMode from '@/widgets/StandbyMode/StandbyMode.vue';
 
 const globalStore = useGlobalStore();
 const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
@@ -54,6 +56,26 @@ watch(
 //     globalStore.setIsSuccess(true);
 //   }, 2000);
 // });
+
+const modalRef = ref(null);
+const isStandby = ref(false);
+
+const exitStandby = () => {
+  if (isStandby.value) {
+    console.log('[App] Выход из режима ожидания');
+    isStandby.value = false;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('touchstart', exitStandby);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('touchstart', exitStandby);
+});
+
+useInactivity(modalRef, isStandby);
 </script>
 
 <template>
@@ -68,6 +90,10 @@ watch(
     <VKeyboard />
     <LoaderModal ref="LoaderModalRef" />
     <SuccessPaymentModal ref="SuccessModalRef" />
+    <Transition name="fade">
+      <StandbyMode v-if="isStandby" />
+    </Transition>
+    <InactivityModal ref="modalRef" @update:standby="isStandby = $event" />
   </div>
 </template>
 
