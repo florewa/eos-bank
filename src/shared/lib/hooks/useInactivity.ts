@@ -27,7 +27,7 @@ export function useInactivity(
     );
 
     timeoutId = setTimeout(() => {
-      if (modalRef.value) {
+      if (modalRef.value && !isStandby.value) {
         console.log('[useInactivity] Открытие модального окна');
         modalRef.value.open();
 
