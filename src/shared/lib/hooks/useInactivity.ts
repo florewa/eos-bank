@@ -20,30 +20,19 @@ export function useInactivity(
 
     const timeoutDuration =
       route.path === '/payment' ? window.TIMEOUT_IN_PAYMENT : window.TIMEOUT;
-    console.log(
-      '[useInactivity] Установка таймера на',
-      timeoutDuration / 1000,
-      'секунд'
-    );
 
     timeoutId = setTimeout(() => {
       if (modalRef.value && !isStandby.value) {
-        console.log('[useInactivity] Открытие модального окна');
         modalRef.value.open();
 
         setTimeout(() => {
           if (modalRef.value && !isStandby.value) {
-            console.log('[useInactivity] Вход в режим ожидания');
             isStandby.value = true;
             modalRef.value.close();
           } else {
-            console.log(
-              '[useInactivity] Не удалось войти в режим ожидания, isStandby уже true или modalRef недоступен'
-            );
           }
         }, 60000);
       } else {
-        console.log('[useInactivity] modalRef не определен');
       }
     }, timeoutDuration);
   };
@@ -51,7 +40,6 @@ export function useInactivity(
   const activityEvents = ['touchstart', 'touchmove', 'touchend'];
 
   const handleActivity = () => {
-    console.log('[useInactivity] Активность пользователя, сброс таймера');
     resetTimer();
   };
 
@@ -72,7 +60,6 @@ export function useInactivity(
   watch(
     () => route.path,
     () => {
-      console.log('[useInactivity] Маршрут изменился, сброс таймера');
       resetTimer();
     }
   );

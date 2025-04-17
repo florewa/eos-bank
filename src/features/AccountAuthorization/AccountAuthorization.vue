@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { AuthById, AuthByPersonal } from '@/features/AccountAuthorization';
 import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 defineEmits<{
   (e: 'login', phone: string): void;
 }>();
 
+const router = useRouter();
+const authStore = useAuthStore();
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
 const agreementsModalRef = ref<InstanceType<typeof AgreementsModal> | null>(
   null
@@ -22,7 +25,6 @@ const openIDModal = () => {
 };
 
 const openModalBySpanText = (spanText: string) => {
-  console.log(`Клик по: ${spanText}`);
   if (spanText.includes('Соглашения')) {
     if (agreementsModalRef.value) {
       agreementsModalRef.value.open();
@@ -33,6 +35,15 @@ const openModalBySpanText = (spanText: string) => {
     }
   }
 };
+
+watch(
+  () => authStore.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      router.push('/cabinet');
+    }
+  }
+);
 </script>
 
 <template>

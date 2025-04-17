@@ -4,6 +4,11 @@ import * as Yup from 'yup';
 import { authByPersonalSchema } from '@/shared/validation/validationSchemas';
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
+import {
+  authByPersonal,
+  type AuthByPersonalForm,
+  useAuthStore,
+} from '@/features/AccountAuthorization/model';
 
 defineProps<{
   openModal: () => void;
@@ -14,15 +19,19 @@ const emit = defineEmits<{
   (e: 'login', phone: string): void;
 }>();
 
-const surname = ref('');
-const name = ref('');
-const patronymic = ref('');
-const birthDate = ref('');
-const phone = ref('');
-const isAgreementAccepted = ref(false);
+const form = ref<AuthByPersonalForm>({
+  surname: '',
+  name: '',
+  patronymic: '',
+  birthday: '',
+  phone: '',
+  isAgreementAccepted: false,
+});
 const errors = ref<Record<string, string>>({});
+const authStore = useAuthStore();
+const isLoading = ref(false);
 
-const validateField = async (field: string, value: any) => {
+const validateField = async (field: keyof AuthByPersonalForm, value: any) => {
   try {
     const schema = Yup.reach(authByPersonalSchema, field) as Yup.AnySchema;
     await schema.validate(value);
@@ -38,26 +47,29 @@ const validateField = async (field: string, value: any) => {
   }
 };
 
-const handleInput = (field: string, value: string | boolean) => {
+const handleInput = (
+  field: keyof AuthByPersonalForm,
+  value: string | boolean
+) => {
+  form.value[field] = value as never;
   validateField(field, value);
 };
 
 const handleSubmit = async () => {
   try {
-    await authByPersonalSchema.validate(
-      {
-        surname: surname.value,
-        name: name.value,
-        patronymic: patronymic.value,
-        birthDate: birthDate.value,
-        phone: phone.value,
-        isAgreementAccepted: isAgreementAccepted.value,
-      },
-      { abortEarly: false }
-    );
+    await authByPersonalSchema.validate(form.value, { abortEarly: false });
     errors.value = {};
-    document.dispatchEvent(new Event('hideKeyboard'));
-    emit('login', phone.value);
+    isLoading.value = true;
+
+    const signature = 'YOUR_SIGNATURE_HERE';
+    const response = await authByPersonal(form.value, signature);
+    authStore.setAuthData(response);
+
+    if (response.result.auth_code === 2) {
+      alert('Доступ закрыт');
+    } else if (response.result.auth_code === 1) {
+      emit('login', form.value.phone);
+    }
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
       const newErrors: Record<string, string> = {};
@@ -67,18 +79,23 @@ const handleSubmit = async () => {
         }
       });
       errors.value = newErrors;
+    } else {
+      authStore.error = 'Ошибка авторизации';
     }
+  } finally {
+    isLoading.value = false;
+    document.dispatchEvent(new Event('hideKeyboard'));
   }
 };
 
 const isFormValid = computed(() => {
   return (
-    surname.value.trim() !== '' &&
-    name.value.trim() !== '' &&
-    patronymic.value.trim() !== '' &&
-    birthDate.value.trim() !== '' &&
-    phone.value.trim() !== '' &&
-    isAgreementAccepted.value &&
+    form.value.surname.trim() !== '' &&
+    form.value.name.trim() !== '' &&
+    form.value.patronymic.trim() !== '' &&
+    form.value.birthday.trim() !== '' &&
+    form.value.phone.trim() !== '' &&
+    form.value.isAgreementAccepted &&
     Object.keys(errors.value).length === 0
   );
 });
@@ -94,60 +111,67 @@ const isFormValid = computed(() => {
       <div class="account-authorization__form-label">Имя</div>
       <VInput
         class="account-authorization__form-input"
-        v-model="surname"
+        v-model="form.surname"
         placeholder="Фамилия"
         @open-modal="openModal"
-        @input="handleInput('surname', surname)"
+        @input="handleInput('surname', form.surname)"
         :error="errors.surname"
       />
       <VInput
         class="account-authorization__form-input"
-        v-model="name"
+        v-model="form.name"
         placeholder="Имя"
-        @input="handleInput('name', name)"
+        @input="handleInput('name', form.name)"
         :error="errors.name"
       />
       <div class="account-authorization__form-label">Отчество</div>
       <div class="account-authorization__form-label">Дата рождения</div>
       <VInput
         class="account-authorization__form-input"
-        v-model="patronymic"
+        v-model="form.patronymic"
         placeholder="Отчество"
-        @input="handleInput('patronymic', patronymic)"
+        @input="handleInput('patronymic', form.patronymic)"
         :error="errors.patronymic"
       />
       <VInput
         class="account-authorization__form-input"
-        v-model="birthDate"
+        v-model="form.birthday"
         placeholder="Дата рождения"
         v-maska="'##.##.####'"
-        @input="handleInput('birthDate', birthDate)"
-        :error="errors.birthDate"
+        @input="handleInput('birthday', form.birthday)"
+        :error="errors.birthday"
       />
       <div class="account-authorization__form-label">Телефон</div>
       <div class="account-authorization__form-label" />
       <VInput
         class="account-authorization__form-input"
-        v-model="phone"
+        v-model="form.phone"
         placeholder="Телефон"
         v-maska="'+7 (###) ###-##-##'"
-        @input="handleInput('phone', phone)"
+        @input="handleInput('phone', form.phone)"
         :error="errors.phone"
       />
-      <VButton variant="primary" type="submit" :disabled="!isFormValid">
+      <VButton
+        variant="primary"
+        type="submit"
+        :disabled="!isFormValid || isLoading"
+      >
         Войти
       </VButton>
       <VCheckbox
         id="agreement-checkbox"
-        v-model="isAgreementAccepted"
+        v-model="form.isAgreementAccepted"
         :label="AGREEMENT_TEXT"
         class="agreement-checkbox"
         @span-click="$emit('open-agreements-modal', $event)"
         @update:modelValue="
-          handleInput('isAgreementAccepted', isAgreementAccepted)
+          handleInput('isAgreementAccepted', form.isAgreementAccepted)
         "
         :error="errors.isAgreementAccepted"
       />
+    </div>
+    <div class="account-authorization__form-error" v-if="authStore.error">
+      {{ authStore.error }}
     </div>
     <div class="account-authorization__text">
       <p>8 (800) 555-17-10</p>
