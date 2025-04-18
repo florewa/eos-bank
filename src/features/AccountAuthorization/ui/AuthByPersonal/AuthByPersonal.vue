@@ -55,6 +55,18 @@ const handleInput = (
   validateField(field, value);
 };
 
+const resetForm = () => {
+  form.value = {
+    surname: '',
+    name: '',
+    patronymic: '',
+    birthday: '',
+    phone: '',
+    isAgreementAccepted: false,
+  };
+  errors.value = {};
+};
+
 const handleSubmit = async () => {
   try {
     await authByPersonalSchema.validate(form.value, { abortEarly: false });
@@ -98,6 +110,10 @@ const isFormValid = computed(() => {
     form.value.isAgreementAccepted &&
     Object.keys(errors.value).length === 0
   );
+});
+
+defineExpose({
+  resetForm,
 });
 </script>
 

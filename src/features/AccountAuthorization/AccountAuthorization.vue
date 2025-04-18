@@ -18,6 +18,9 @@ const agreementsModalRef = ref<InstanceType<typeof AgreementsModal> | null>(
 const policyModalRef = ref<InstanceType<typeof PolicyModal> | null>(null);
 const activeAuthMethod = ref<'id' | 'personal'>('id');
 
+const authByIdRef = ref<InstanceType<typeof AuthById> | null>(null);
+const authByPersonalRef = ref<InstanceType<typeof AuthByPersonal> | null>(null);
+
 const openIDModal = () => {
   if (IDModalRef.value) {
     IDModalRef.value.open();
@@ -35,6 +38,16 @@ const openModalBySpanText = (spanText: string) => {
     }
   }
 };
+
+watch(activeAuthMethod, (newMethod, oldMethod) => {
+  if (newMethod === 'id' && authByPersonalRef.value) {
+    authByPersonalRef.value.resetForm();
+    authStore.error = null;
+  } else if (newMethod === 'personal' && authByIdRef.value) {
+    authByIdRef.value.resetForm();
+    authStore.error = null;
+  }
+});
 
 watch(
   () => authStore.isAuthenticated,
@@ -68,12 +81,14 @@ watch(
       </div>
 
       <AuthById
+        ref="authByIdRef"
         v-show="activeAuthMethod === 'id'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"
         @login="$emit('login', $event)"
       />
       <AuthByPersonal
+        ref="authByPersonalRef"
         v-show="activeAuthMethod === 'personal'"
         :open-modal="openIDModal"
         @open-agreements-modal="openModalBySpanText"

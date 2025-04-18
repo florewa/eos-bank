@@ -3,6 +3,7 @@ import { ref, defineEmits } from 'vue';
 import warningSrc from '@/shared/assets/img/Warning.svg?url';
 import { VButton, VModal } from '@/shared/ui';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const emit = defineEmits(['update:standby']);
 
@@ -10,6 +11,8 @@ const router = useRouter();
 const isOpen = ref(false);
 const timer = ref(60);
 let interval: ReturnType<typeof setInterval> | null = null;
+
+const authStore = useAuthStore();
 
 const open = () => {
   isOpen.value = true;
@@ -22,6 +25,7 @@ const open = () => {
     } else {
       close();
       router.push('/');
+      authStore.clearAuthData();
     }
   }, 1000);
 };
@@ -38,6 +42,7 @@ const goHome = () => {
   close();
   emit('update:standby', true);
   router.push('/');
+  authStore.clearAuthData();
 };
 
 defineExpose({ open, close });

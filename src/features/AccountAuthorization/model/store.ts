@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (response.result.auth_code === 1) {
       localStorage.setItem('session_id', response.session_id);
+      localStorage.setItem('token_sms', response.result.token_sms);
     }
   };
 
@@ -28,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false;
     error.value = null;
     localStorage.removeItem('session_id');
+    console.log('123');
   };
 
   return {

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-
 import SmsCodeInput from '@/features/SMSConfirmation/ui/SmsCodeInput.vue';
 import IconBack from '@/shared/assets/icons/IconArrowLeft.svg';
 import { VButton } from '@/shared/ui';
+import { sendSMS, checkSMS } from '@/features/SMSConfirmation/model';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const props = defineProps<{
   phone: string;
@@ -16,6 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+const authStore = useAuthStore();
 const smsCode = ref(['', '', '', '', '', '']);
 const timer = ref(59);
 const isTimerActive = ref(true);
@@ -71,25 +73,53 @@ const toBack = () => {
   emit('back');
 };
 
-const submitCode = () => {
+const submitCode = async () => {
   const codeStr = smsCode.value.join('');
-  if (codeStr === '111111') {
-    error.value = null;
-    document.dispatchEvent(new Event('hideNumpad'));
-    router.push('/cabinet');
-  } else {
-    error.value = 'Неверный код';
+  try {
+    const payload = {
+      session_id: authStore.sessionId!,
+      operation_name: 'authorization_sms_check',
+      token_sms: authStore.tokenSms!,
+      text_sms: codeStr,
+      signature: 'YOUR_SIGNATURE_HERE', // заменить на реальную подпись
+    };
+    const response = await checkSMS(payload);
+    if (response.result.sms_check === 1) {
+      error.value = null;
+      document.dispatchEvent(new Event('hideNumpad'));
+      await router.push('/cabinet');
+    } else {
+      error.value = 'Неверный код';
+    }
+  } catch (err) {
+    console.error('Ошибка при проверке SMS:', err);
+    error.value = 'Ошибка при проверке кода';
   }
 };
 
-const resendCode = () => {
+const resendCode = async () => {
   if (!isTimerActive.value) {
-    timer.value = 59;
-    isTimerActive.value = true;
-    startTimer();
-    emit('resend');
-    smsCode.value = ['', '', '', '', '', ''];
-    error.value = null;
+    try {
+      const payload = {
+        session_id: authStore.sessionId!,
+        operation_name: 'authorization_sms_send',
+        token_sms: authStore.tokenSms!,
+        signature: 'YOUR_SIGNATURE_HERE', // заменить на реальную подпись
+      };
+      const response = await sendSMS(payload);
+      if (response.result.sms_status === 1) {
+        timer.value = 59;
+        isTimerActive.value = true;
+        startTimer();
+        smsCode.value = ['', '', '', '', '', ''];
+        error.value = null;
+      } else {
+        error.value = 'Ошибка при отправке SMS';
+      }
+    } catch (err) {
+      console.error('Ошибка при отправке SMS:', err);
+      error.value = 'Ошибка при отправке SMS';
+    }
   }
 };
 
@@ -191,12 +221,6 @@ defineExpose({
       font-weight: 700;
       color: var(--red-accent);
     }
-  }
-
-  &__buttons {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
   }
 }
 </style>

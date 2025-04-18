@@ -30,7 +30,7 @@ export const authById = async (
   const payload: AuthByIdPayload = {
     ceid: form.ceid,
     birthday: form.birthday,
-    phone: form.phone.replace(/\D/g, '').slice(-10), // Форматируем телефон, убираем "+7" и пробелы
+    phone: form.phone.replace(/\D/g, '').slice(-10),
     operation_name: 'authorization',
     signature,
   };

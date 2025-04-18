@@ -46,20 +46,34 @@ const validateField = async (field: keyof AuthByIdForm, value: any) => {
 };
 
 const handleInput = (field: keyof AuthByIdForm, value: string | boolean) => {
-  form.value[field] = value as never; // Обновляем форму
+  form.value[field] = value as never;
   validateField(field, value);
 };
 
+const resetForm = () => {
+  form.value = {
+    ceid: '',
+    birthday: '',
+    phone: '',
+    isAgreementAccepted: false,
+  };
+  errors.value = {};
+};
+
 const handleSubmit = async () => {
-  console.log('qwe');
+  console.log('Submitting form:', form.value);
   try {
+    const formattedForm = {
+      ...form.value,
+      ceid: form.value.ceid.trim(),
+      phone: form.value.phone.replace(/\D/g, '').slice(-10),
+    };
     await authByIdSchema.validate(form.value, { abortEarly: false });
     errors.value = {};
     isLoading.value = true;
 
-    // Предполагаем, что подпись предоставляется где-то (например, с бэкенда)
-    const signature = 'YOUR_SIGNATURE_HERE'; // Замените на реальную подпись
-    const response = await authById(form.value, signature);
+    const signature = 'YOUR_SIGNATURE_HERE';
+    const response = await authById(formattedForm, signature);
     authStore.setAuthData(response);
 
     if (response.result.auth_code === 2) {
@@ -69,7 +83,8 @@ const handleSubmit = async () => {
     }
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
-      console.log('Validation error:', err);
+      console.log('Validation errors:', err.errors);
+      console.log('Validation details:', err.inner);
       const newErrors: Record<string, string> = {};
       err.inner.forEach((error) => {
         if (error.path) {
@@ -78,6 +93,7 @@ const handleSubmit = async () => {
       });
       errors.value = newErrors;
     } else {
+      console.error('Error:', err);
       authStore.error = 'Ошибка авторизации';
     }
   } finally {
@@ -94,6 +110,10 @@ const isFormValid = computed(() => {
     form.value.isAgreementAccepted &&
     Object.keys(errors.value).length === 0
   );
+});
+
+defineExpose({
+  resetForm,
 });
 </script>
 
