@@ -72,8 +72,7 @@ const handleSubmit = async () => {
     errors.value = {};
     isLoading.value = true;
 
-    const signature = 'YOUR_SIGNATURE_HERE';
-    const response = await authById(formattedForm, signature);
+    const response = await authById(formattedForm);
     authStore.setAuthData(response);
 
     if (response.result.auth_code === 2) {

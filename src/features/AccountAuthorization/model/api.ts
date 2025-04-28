@@ -1,64 +1,82 @@
-import { axiosInstance } from '@/shared/api';
+import {
+  signData,
+  createRequestSignatureString,
+  verifySignature,
+  createResponseSignatureString,
+} from '@/shared/utils/signature';
 import type {
   AuthByIdForm,
   AuthByPersonalForm,
   AuthResponse,
 } from '@/features/AccountAuthorization/model/types.ts';
+import { axiosInstance } from '@/shared/api';
 
-interface AuthByIdPayload {
-  ceid: string;
-  birthday: string;
-  phone: string;
-  operation_name: string;
-  signature: string;
-}
-
-interface AuthByPersonalPayload {
-  p_last_name: string;
-  p_first_name: string;
-  p_patronymic: string;
-  birthday: string;
-  phone: string;
-  operation_name: string;
-  signature: string;
-}
-
-export const authById = async (
-  form: AuthByIdForm,
-  signature: string
-): Promise<AuthResponse> => {
-  const payload: AuthByIdPayload = {
+export const authById = async (form: AuthByIdForm): Promise<AuthResponse> => {
+  const payload: Record<string, string> = {
     ceid: form.ceid,
     birthday: form.birthday,
     phone: form.phone.replace(/\D/g, '').slice(-10),
     operation_name: 'authorization',
-    signature,
   };
 
-  const response = await axiosInstance.get<AuthResponse>(
-    '/api2/api/v1/authorization',
-    { params: payload }
+  const signatureString = createRequestSignatureString(payload);
+  console.log('AuthById signature string:', signatureString);
+  const computedSignature = signData(signatureString);
+  console.log('AuthById signature:', computedSignature);
+
+  const response = await axiosInstance.get<AuthResponse>('/authorization', {
+    params: { ...payload, signature: computedSignature },
+  });
+
+  const responseSignatureString = createResponseSignatureString(response.data);
+  console.log('AuthById response signature string:', responseSignatureString);
+  const isValid = verifySignature(
+    responseSignatureString,
+    response.data.signature
   );
+  console.log('AuthById response signature valid:', isValid);
+  if (!isValid) {
+    throw new Error('Невалидная подпись ответа');
+  }
+
   return response.data;
 };
 
+// Аналогично для authByPersonal
 export const authByPersonal = async (
-  form: AuthByPersonalForm,
-  signature: string
+  form: AuthByPersonalForm
 ): Promise<AuthResponse> => {
-  const payload: AuthByPersonalPayload = {
-    p_last_name: form.surname,
-    p_first_name: form.name,
-    p_patronymic: form.patronymic,
+  const payload: Record<string, string> = {
+    surname: form.surname,
+    name: form.name,
+    patronymic: form.patronymic,
     birthday: form.birthday,
-    phone: form.phone.replace(/\D/g, '').slice(-10), // Форматируем телефон
-    operation_name: 'authorizationNa',
-    signature,
+    phone: form.phone.replace(/\D/g, '').slice(-10),
+    operation_name: 'authorization',
   };
 
-  const response = await axiosInstance.get<AuthResponse>(
-    '/api2/api/v1/authorizationNa',
-    { params: payload }
+  const signatureString = createRequestSignatureString(payload);
+  console.log('AuthByPersonal signature string:', signatureString);
+  const computedSignature = signData(signatureString);
+  console.log('AuthByPersonal signature:', computedSignature);
+
+  const response = await axiosInstance.get<AuthResponse>('/authorization', {
+    params: { ...payload, signature: computedSignature },
+  });
+
+  const responseSignatureString = createResponseSignatureString(response.data);
+  console.log(
+    'AuthByPersonal response signature string:',
+    responseSignatureString
   );
+  const isValid = verifySignature(
+    responseSignatureString,
+    response.data.signature
+  );
+  console.log('AuthByPersonal response signature valid:', isValid);
+  if (!isValid) {
+    throw new Error('Невалидная подпись ответа');
+  }
+
   return response.data;
 };

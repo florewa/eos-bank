@@ -5,7 +5,7 @@ import SmsCodeInput from '@/features/SMSConfirmation/ui/SmsCodeInput.vue';
 import IconBack from '@/shared/assets/icons/IconArrowLeft.svg';
 import { VButton } from '@/shared/ui';
 import { sendSMS, checkSMS } from '@/features/SMSConfirmation/model';
-import { useAuthStore } from '@/features/AccountAuthorization/model';
+import { useAuthStore } from '@/features/AccountAuthorization/model/store';
 
 const props = defineProps<{
   phone: string;
@@ -24,10 +24,7 @@ const isTimerActive = ref(true);
 const error = ref<string | null>(null);
 
 const numpadMethods = ref<
-  | {
-      setActiveInput: (input: HTMLInputElement | null) => void;
-    }
-  | undefined
+  { setActiveInput: (input: HTMLInputElement | null) => void } | undefined
 >();
 
 const setNumpadMethods = (methods: {
@@ -81,19 +78,19 @@ const submitCode = async () => {
       operation_name: 'authorization_sms_check',
       token_sms: authStore.tokenSms!,
       text_sms: codeStr,
-      signature: 'YOUR_SIGNATURE_HERE', // заменить на реальную подпись
     };
     const response = await checkSMS(payload);
     if (response.result.sms_check === 1) {
       error.value = null;
       document.dispatchEvent(new Event('hideNumpad'));
+      authStore.isAuthenticated = true;
       await router.push('/cabinet');
     } else {
       error.value = 'Неверный код';
     }
   } catch (err) {
     console.error('Ошибка при проверке SMS:', err);
-    error.value = 'Ошибка при проверке кода';
+    error.value = err.message || 'Ошибка при проверке кода';
   }
 };
 
@@ -104,7 +101,6 @@ const resendCode = async () => {
         session_id: authStore.sessionId!,
         operation_name: 'authorization_sms_send',
         token_sms: authStore.tokenSms!,
-        signature: 'YOUR_SIGNATURE_HERE', // заменить на реальную подпись
       };
       const response = await sendSMS(payload);
       if (response.result.sms_status === 1) {

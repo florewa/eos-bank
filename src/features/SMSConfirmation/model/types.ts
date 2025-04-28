@@ -1,8 +1,8 @@
 export interface SendSMSRequest {
   session_id: string; // Идентификатор сессии
-  operation_name: string; // Название операции, например 'authorization_sms_send'
+  operation_name: string;
   token_sms: string; // Токен SMS
-  signature: string; // Подпись в HEX
+  signature?: string; // Подпись в HEX
 }
 
 export interface SendSMSResponse {
@@ -11,7 +11,7 @@ export interface SendSMSResponse {
   status: boolean;
   result: {
     token_sms: string;
-    sms_status: number; // Статус отправки SMS (1 - успешно)
+    sms_status: number; // Статус отправки SMS
   };
   signature: string;
   error: string;
@@ -19,10 +19,10 @@ export interface SendSMSResponse {
 
 export interface CheckSMSRequest {
   session_id: string;
-  operation_name: string; // Например, 'authorization_sms_check'
+  operation_name: string;
   token_sms: string;
   text_sms: string; // Код из SMS
-  signature: string;
+  signature?: string;
 }
 
 export interface CheckSMSResponse {
@@ -31,7 +31,7 @@ export interface CheckSMSResponse {
   status: boolean;
   result: {
     token_sms: string;
-    sms_check: number; // Результат проверки кода (1 - успешно)
+    sms_check: number; // Результат проверки кода
   };
   signature: string;
   error: string;
