@@ -24,9 +24,12 @@ export const authById = async (form: AuthByIdForm): Promise<AuthResponse> => {
   const computedSignature = signData(signatureString);
   console.log('AuthById signature:', computedSignature);
 
-  const response = await axiosInstance.get<AuthResponse>('/authorization', {
-    params: { ...payload, signature: computedSignature },
-  });
+  const response = await axiosInstance.get<AuthResponse>(
+    '/api2/api/v1/authorization',
+    {
+      params: { ...payload, signature: computedSignature },
+    }
+  );
 
   const responseSignatureString = createResponseSignatureString(response.data);
   console.log('AuthById response signature string:', responseSignatureString);
@@ -42,7 +45,6 @@ export const authById = async (form: AuthByIdForm): Promise<AuthResponse> => {
   return response.data;
 };
 
-// Аналогично для authByPersonal
 export const authByPersonal = async (
   form: AuthByPersonalForm
 ): Promise<AuthResponse> => {
@@ -60,9 +62,12 @@ export const authByPersonal = async (
   const computedSignature = signData(signatureString);
   console.log('AuthByPersonal signature:', computedSignature);
 
-  const response = await axiosInstance.get<AuthResponse>('/authorization', {
-    params: { ...payload, signature: computedSignature },
-  });
+  const response = await axiosInstance.get<AuthResponse>(
+    '/api2/api/v1/authorization',
+    {
+      params: { ...payload, signature: computedSignature },
+    }
+  );
 
   const responseSignatureString = createResponseSignatureString(response.data);
   console.log(

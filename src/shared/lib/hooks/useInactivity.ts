@@ -1,7 +1,8 @@
 import { onMounted, onUnmounted, watch } from 'vue';
 import type { Ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import type { RouteLocationNormalizedLoaded } from 'vue-router';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 interface InactivityModal {
   open: () => void;
@@ -13,6 +14,8 @@ export function useInactivity(
   isStandby: Ref<boolean>
 ) {
   const route = useRoute();
+  const router = useRouter();
+  const authStore = useAuthStore();
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   const resetTimer = () => {
@@ -27,6 +30,8 @@ export function useInactivity(
 
         setTimeout(() => {
           if (modalRef.value && !isStandby.value) {
+            authStore.clearAuthData();
+            void router.push('/');
             isStandby.value = true;
             modalRef.value.close();
           } else {

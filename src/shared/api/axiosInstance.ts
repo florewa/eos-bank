@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
-export const API_URL = window.API;
+export const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  console.error('VITE_API_URL is not defined in .env file');
+}
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
