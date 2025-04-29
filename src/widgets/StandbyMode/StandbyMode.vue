@@ -30,7 +30,7 @@ const screens = [
 onMounted(() => {
   intervalId = setInterval(() => {
     currentScreen.value = (currentScreen.value + 1) % 2;
-  }, 15 * 1000);
+  }, 30 * 1000);
 });
 
 onUnmounted(() => {
