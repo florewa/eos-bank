@@ -4,6 +4,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { InactivityModal, VKeyboard } from '@/shared/ui';
 import {
+  ErrorPaymentModal,
   LoaderModal,
   SuccessPaymentModal,
   TheFooter,
@@ -17,6 +18,7 @@ const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
 const SuccessModalRef = ref<InstanceType<typeof SuccessPaymentModal> | null>(
   null
 );
+const ErrorModalRef = ref<InstanceType<typeof ErrorPaymentModal> | null>(null);
 
 watch(
   () => globalStore.isLoading,
@@ -44,18 +46,18 @@ watch(
   }
 );
 
-// onMounted(() => {
-//   globalStore.setIsLoading(true);
-//   globalStore.setIsSuccess(false);
-//
-//   setTimeout(() => {
-//     globalStore.setIsLoading(false);
-//   }, 1500);
-//
-//   setTimeout(() => {
-//     globalStore.setIsSuccess(true);
-//   }, 2000);
-// });
+watch(
+  () => globalStore.isError,
+  (newValue) => {
+    if (ErrorModalRef.value) {
+      if (newValue) {
+        ErrorModalRef.value.open();
+      } else {
+        ErrorModalRef.value.close();
+      }
+    }
+  }
+);
 
 const modalRef = ref(null);
 const isStandby = ref(false);
@@ -90,6 +92,7 @@ useInactivity(modalRef, isStandby);
     <VKeyboard />
     <LoaderModal ref="LoaderModalRef" />
     <SuccessPaymentModal ref="SuccessModalRef" />
+    <ErrorPaymentModal ref="ErrorModalRef" />
     <Transition name="fade">
       <StandbyMode v-if="isStandby" />
     </Transition>

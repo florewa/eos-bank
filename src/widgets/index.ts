@@ -9,3 +9,4 @@ export { PolicyModal } from './PolicyModal';
 export { PromotionsModal } from './PromotionsModal';
 export { LoaderModal } from './LoaderModal';
 export { SuccessPaymentModal } from './SuccessPaymentModal';
+export { ErrorPaymentModal } from './ErrorPaymentModal';
