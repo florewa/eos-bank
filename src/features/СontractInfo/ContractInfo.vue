@@ -112,6 +112,8 @@ const goToPayment = () => {
 
 <style scoped lang="scss">
 .contract-info {
+  max-height: 830px;
+
   &__inner {
     display: flex;
     flex-direction: column;

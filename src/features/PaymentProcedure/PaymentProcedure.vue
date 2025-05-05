@@ -20,21 +20,21 @@ const goBack = () => {
   router.push('/pay-debt');
 };
 
-onMounted(() => {
-  globalStore.reset();
-
-  setTimeout(() => {
-    globalStore.setIsLoading(true);
-    console.log('Этап 1: Начало оплаты');
-
-    setTimeout(() => {
-      globalStore.setIsLoading(false);
-      globalStore.setIsSuccess(true);
-      console.log('Этап 2: Оплата завершена');
-      isPaymentSuccessful.value = true;
-    }, 4000);
-  }, 4000);
-});
+// onMounted(() => {
+//   globalStore.reset();
+//
+//   setTimeout(() => {
+//     globalStore.setIsLoading(true);
+//     console.log('Этап 1: Начало оплаты');
+//
+//     setTimeout(() => {
+//       globalStore.setIsLoading(false);
+//       globalStore.setIsSuccess(true);
+//       console.log('Этап 2: Оплата завершена');
+//       isPaymentSuccessful.value = true;
+//     }, 4000);
+//   }, 4000);
+// });
 </script>
 
 <template>
