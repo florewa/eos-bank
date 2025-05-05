@@ -90,7 +90,7 @@ const submitCode = async () => {
     }
   } catch (err) {
     console.error('Ошибка при проверке SMS:', err);
-    error.value = err.message || 'Ошибка при проверке кода';
+    error.value = 'Ошибка при проверке кода';
   }
 };
 
