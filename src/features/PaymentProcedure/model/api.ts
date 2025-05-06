@@ -11,7 +11,7 @@ export interface PaymentItem {
 export async function paymentEvent(paymentData: PaymentItem[]) {
   try {
     const response = await axiosInstance.post<{ result: string }>(
-      PAYMENT_URL,
+      'http://localhost:2707',
       paymentData,
       {
         headers: {
