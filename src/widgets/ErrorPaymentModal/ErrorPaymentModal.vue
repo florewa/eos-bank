@@ -1,17 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { VModal } from '@/shared/ui';
 import IconError from '@/shared/assets/icons/IconError.svg';
+import { useRouter } from 'vue-router';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
+const router = useRouter();
+const globalStore = useGlobalStore();
 const isOpen = ref(false);
 const timer = ref(20);
 let interval: ReturnType<typeof setInterval> | null = null;
 
-const open = () => {
-  isOpen.value = true;
-  timer.value = 20;
+// Следим за изменением globalStore.isError
+watch(
+  () => globalStore.isError,
+  (newValue) => {
+    if (newValue) {
+      open();
+    } else {
+      close();
+    }
+  }
+);
 
-  if (interval) clearInterval(interval);
+const open = () => {
+  resetState();
+  isOpen.value = true;
+  startTimer();
+};
+
+const startTimer = () => {
+  timer.value = 20;
   interval = setInterval(() => {
     if (timer.value > 0) {
       timer.value -= 1;
@@ -21,12 +40,19 @@ const open = () => {
   }, 1000);
 };
 
-const close = () => {
+const resetState = () => {
   isOpen.value = false;
+  timer.value = 20;
   if (interval) {
     clearInterval(interval);
     interval = null;
   }
+};
+
+const close = () => {
+  resetState();
+  globalStore.setIsError(false);
+  router.push('/pay-debt');
 };
 
 defineExpose({ open, close });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, defineProps } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import ReceiptPrintPrompt from '@/pages/payment-page/ui/ReceiptPrintPrompt/ReceiptPrintPrompt.vue';
@@ -8,57 +8,73 @@ import mockQr from '@/shared/assets/img/MockQR.svg?url';
 import picSrc from '@/shared/assets/img/PaymentPic.svg?url';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { VButton } from '@/shared/ui';
+import {
+  paymentEvent,
+  type PaymentItem,
+} from '@/features/PaymentProcedure/model/api.ts';
+
+const props = defineProps<{
+  clientId: string;
+  amount: string;
+  method: 'card' | 'sbp' | null;
+}>();
 
 const globalStore = useGlobalStore();
-const route = useRoute();
 const router = useRouter();
 
-const paymentMethodFromQuery = computed(
-  () => route.query.method as 'card' | 'sbp' | undefined
-);
-const paymentResultFromQuery = computed(
-  () => route.query.result as 'success' | undefined
-);
-const amountFromQuery = computed(
-  () => route.query.amount as string | undefined
-);
-const clientIdFromQuery = computed(
-  () => route.query.clientId as string | undefined
-);
-
 const isPaymentSuccessful = ref(false);
+const paymentError = ref<string | null>(null);
 
 const goBack = () => {
-  if (paymentMethodFromQuery.value || clientIdFromQuery.value) {
+  if (props.method || props.clientId) {
     router.push('/pay-debt');
   } else {
     router.push('/');
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   globalStore.reset();
-  if (
-    paymentMethodFromQuery.value === 'card' &&
-    paymentResultFromQuery.value === 'success'
-  ) {
-    isPaymentSuccessful.value = true;
-    globalStore.setIsSuccess(true);
-  } else if (
-    paymentMethodFromQuery.value === 'card' &&
-    paymentResultFromQuery.value !== 'success'
-  ) {
-    console.log(
-      'Карточный платеж не подтвержден как успешный через query параметры.'
-    );
+
+  if (props.method === 'card') {
+    globalStore.setIsLoading(true);
+    try {
+      const paymentData: PaymentItem[] = [
+        {
+          title: `Оплата задолженности клиента (${props.clientId})`,
+          count: 1,
+          price: parseFloat(props.amount),
+        },
+      ];
+
+      const response = await paymentEvent(paymentData);
+      if (response.result === 'success') {
+        isPaymentSuccessful.value = true;
+        globalStore.setIsSuccess(true);
+      } else {
+        paymentError.value = `Платеж не удался (API: ${response.result}).`;
+        globalStore.setIsError(true);
+      }
+    } catch (error) {
+      console.error('Ошибка при вызове paymentEvent:', error);
+      paymentError.value =
+        error instanceof Error
+          ? error.message
+          : 'Произошла неизвестная ошибка при оплате.';
+      globalStore.setIsError(true);
+    } finally {
+      globalStore.setIsLoading(false);
+    }
+  } else if (props.method === 'sbp') {
+    // No API call for SBP, just display QR code
   }
 });
 
 const pageTitle = computed(() => {
-  if (paymentMethodFromQuery.value === 'sbp') {
+  if (props.method === 'sbp') {
     return 'Оплата через СБП';
   }
-  if (paymentMethodFromQuery.value === 'card') {
+  if (props.method === 'card') {
     return isPaymentSuccessful.value
       ? 'Оплата прошла успешно'
       : 'Оплата банковской картой';
@@ -67,19 +83,19 @@ const pageTitle = computed(() => {
 });
 
 const pageSubtitle = computed(() => {
-  if (paymentMethodFromQuery.value === 'sbp') {
+  if (props.method === 'sbp') {
     return 'Сканируйте QR-код для продолжения оплаты';
   }
-  if (paymentMethodFromQuery.value === 'card') {
+  if (props.method === 'card') {
     return isPaymentSuccessful.value
-      ? `Сумма: ${amountFromQuery.value || 'N/A'} руб. Клиент ID: ${clientIdFromQuery.value || 'N/A'}`
+      ? `Сумма: ${props.amount || 'N/A'} руб. Клиент ID: ${props.clientId || 'N/A'}`
       : 'Используйте терминал оплаты';
   }
   return 'Пожалуйста, подождите';
 });
 
 const displayImage = computed(() => {
-  return paymentMethodFromQuery.value === 'sbp' ? mockQr : picSrc;
+  return props.method === 'sbp' ? mockQr : picSrc;
 });
 </script>
 
@@ -99,7 +115,7 @@ const displayImage = computed(() => {
       <div class="payment-procedure__body">
         <div
           class="payment-procedure__picture"
-          :style="{ order: paymentMethodFromQuery === 'sbp' ? 2 : 0 }"
+          :style="{ order: props.method === 'sbp' ? 2 : 0 }"
         >
           <img
             :src="displayImage"
@@ -110,13 +126,13 @@ const displayImage = computed(() => {
         </div>
         <h1
           class="payment-procedure__title"
-          :style="{ order: paymentMethodFromQuery === 'sbp' ? 0 : 1 }"
+          :style="{ order: props.method === 'sbp' ? 0 : 1 }"
         >
           {{ pageTitle }}
         </h1>
         <div
           class="payment-procedure__subtitle"
-          :style="{ order: paymentMethodFromQuery === 'sbp' ? 1 : 2 }"
+          :style="{ order: props.method === 'sbp' ? 1 : 2 }"
         >
           {{ pageSubtitle }}
         </div>
@@ -124,14 +140,14 @@ const displayImage = computed(() => {
     </div>
     <ReceiptPrintPrompt
       v-else
-      :amount="amountFromQuery ? parseFloat(amountFromQuery) : undefined"
-      :client-id="clientIdFromQuery"
+      :amount="props.amount ? parseFloat(props.amount) : undefined"
+      :client-id="props.clientId"
       @printReceipt="
         console.log(
           'Печатаем чек для ID:',
-          clientIdFromQuery,
+          props.clientId,
           'на сумму:',
-          amountFromQuery
+          props.amount
         )
       "
       @skipReceipt="router.push('/')"
@@ -190,6 +206,12 @@ const displayImage = computed(() => {
       width: 40px;
       height: 40px;
     }
+  }
+
+  &__error {
+    color: var(--red-primary, #d32f2f);
+    font-size: 24px;
+    margin-top: 20px;
   }
 }
 </style>

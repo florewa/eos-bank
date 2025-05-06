@@ -10,16 +10,11 @@ import IconVisa from '@/shared/assets/icons/IconVisa.svg';
 import { sendMetrikaGoal } from '@/shared/lib/metrika/sendMetrikaGoal.ts';
 import { VButton, VInput } from '@/shared/ui';
 import { IDModal } from '@/widgets';
-import {
-  paymentEvent,
-  type PaymentItem,
-} from '@/features/PaymentProcedure/model/api.ts';
-import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 const router = useRouter();
-const globalStore = useGlobalStore();
 
 const selectedPaymentMethod = ref<'card' | 'sbp' | null>(null);
+const paymentData = ref<{ id: string; sum: string } | null>(null);
 
 const selectMethodAndAllowSubmit = (method: 'card' | 'sbp') => {
   selectedPaymentMethod.value = method;
@@ -39,9 +34,6 @@ const id = ref('');
 const sum = ref('');
 const errors = ref<Record<string, string>>({});
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
-
-const cardPaymentStatus = ref<'idle' | 'pending' | 'failed'>('idle'); // 'idle', 'pending', 'failed'
-const cardPaymentError = ref<string | null>(null);
 
 const openModal = () => {
   if (IDModalRef.value) {
@@ -78,11 +70,6 @@ const handleSumInput = (value: string) => {
 };
 
 const handleSubmit = async () => {
-  cardPaymentError.value = null;
-  if (selectedPaymentMethod.value === 'card') {
-    cardPaymentStatus.value = 'idle';
-  }
-
   try {
     await payDebtSchema.validate(
       { id: id.value, sum: parseFloat(sum.value) },
@@ -91,70 +78,24 @@ const handleSubmit = async () => {
     errors.value = {};
 
     if (!selectedPaymentMethod.value) {
-      console.error('Способ оплаты не выбран перед отправкой формы');
-      cardPaymentError.value = 'Пожалуйста, выберите способ оплаты.';
+      errors.value['method'] = 'Пожалуйста, выберите способ оплаты.';
       return;
     }
 
-    if (selectedPaymentMethod.value === 'card') {
-      sendMetrikaGoal('pay-debt-card');
-      globalStore.setIsLoading(true);
-      cardPaymentStatus.value = 'pending';
+    paymentData.value = { id: id.value, sum: sum.value };
 
-      const paymentData: PaymentItem[] = [
-        {
-          title: `Оплата задолженности клиента (${id.value})`,
-          count: 1,
-          price: parseFloat(sum.value),
-        },
-      ];
+    await router.push({
+      path: '/payment',
+      query: {
+        method: selectedPaymentMethod.value,
+        amount: sum.value,
+        clientId: id.value,
+      },
+    });
 
-      try {
-        const response = await paymentEvent(paymentData);
-        if (response.result === 'success') {
-          cardPaymentStatus.value = 'idle';
-          globalStore.setIsSuccess(true);
-          await router.push({
-            path: '/payment',
-            query: {
-              method: 'card',
-              result: 'success',
-              amount: sum.value,
-              clientId: id.value,
-            },
-          });
-        } else {
-          cardPaymentStatus.value = 'failed';
-          cardPaymentError.value = `Платеж не удался (API: ${response.result}). Попробуйте снова.`;
-          globalStore.setIsSuccess(false);
-        }
-      } catch (error) {
-        console.error('Ошибка при вызове paymentEvent:', error);
-        cardPaymentStatus.value = 'failed';
-        cardPaymentError.value =
-          error instanceof Error
-            ? error.message
-            : 'Произошла неизвестная ошибка при оплате.';
-        globalStore.setIsSuccess(false);
-      } finally {
-        globalStore.setIsLoading(false);
-      }
-    } else if (selectedPaymentMethod.value === 'sbp') {
+    if (selectedPaymentMethod.value === 'sbp') {
       sendMetrikaGoal('pay-debt-sbp');
-      await router.push({
-        path: '/payment',
-        query: {
-          method: 'sbp',
-          amount: sum.value,
-          clientId: id.value,
-        },
-      });
     }
-    // console.log('Оплата:', {
-    //   id: id.value,
-    //   sum: sum.value,
-    //   method: selectedPaymentMethod.value,
-    // });
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
       const newErrors: Record<string, string> = {};
@@ -164,10 +105,6 @@ const handleSubmit = async () => {
         }
       });
       errors.value = newErrors;
-    }
-    if (cardPaymentStatus.value === 'pending') {
-      cardPaymentStatus.value = 'idle';
-      globalStore.setIsLoading(false);
     }
   }
 };
@@ -182,10 +119,6 @@ const isFormValid = computed(() => {
     Object.keys(errors.value).length === 0
   );
 });
-
-const isCardPaymentProcessing = computed(
-  () => cardPaymentStatus.value === 'pending'
-);
 </script>
 
 <template>
@@ -221,7 +154,6 @@ const isCardPaymentProcessing = computed(
             question
             @open-modal="openModal"
             :error="errors.id"
-            :disabled="isCardPaymentProcessing"
           />
           <VInput
             class="pay-debt__form-input"
@@ -230,20 +162,15 @@ const isCardPaymentProcessing = computed(
             @update:model-value="handleSumInput"
             placeholder="Сумма платежа (руб.)"
             :error="errors.sum"
-            :disabled="isCardPaymentProcessing"
           />
           <VButton
             variant="primary"
             type="submit"
             class="pay-debt__button-card"
-            :disabled="!isFormValid || isCardPaymentProcessing"
+            :disabled="!isFormValid"
             @click="selectMethodAndAllowSubmit('card')"
           >
-            <span
-              v-if="isCardPaymentProcessing && selectedPaymentMethod === 'card'"
-              >Обработка...</span
-            >
-            <span v-else>Оплатить картой</span>
+            Оплатить картой
             <IconMasterCard />
             <IconVisa />
             <IconMir />
@@ -252,19 +179,15 @@ const isCardPaymentProcessing = computed(
             variant="outline"
             type="submit"
             class="pay-debt__button-sbp"
-            :disabled="!isFormValid || isCardPaymentProcessing"
+            :disabled="!isFormValid"
             @click="selectMethodAndAllowSubmit('sbp')"
           >
             Оплатить через СБП
             <img :src="IconSBP" alt="SBP Icon" />
           </VButton>
         </div>
-        <!-- Отображение ошибки платежа картой -->
-        <div
-          v-if="cardPaymentStatus === 'failed' && cardPaymentError"
-          class="pay-debt__form-error-message"
-        >
-          {{ cardPaymentError }}
+        <div v-if="errors.method" class="pay-debt__form-error-message">
+          {{ errors.method }}
         </div>
       </form>
       <IDModal ref="IDModalRef" />
@@ -278,6 +201,14 @@ const isCardPaymentProcessing = computed(
     display: flex;
     flex-direction: column;
     gap: 40px;
+  }
+
+  &__form {
+    &-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
   }
 
   &__header {
