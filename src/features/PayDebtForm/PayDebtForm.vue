@@ -10,12 +10,18 @@ import IconVisa from '@/shared/assets/icons/IconVisa.svg';
 import { sendMetrikaGoal } from '@/shared/lib/metrika/sendMetrikaGoal.ts';
 import { VButton, VInput } from '@/shared/ui';
 import { IDModal } from '@/widgets';
+import {
+  paymentEvent,
+  type PaymentItem,
+} from '@/features/PaymentProcedure/model/api.ts';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 const router = useRouter();
+const globalStore = useGlobalStore();
 
 const selectedPaymentMethod = ref<'card' | 'sbp' | null>(null);
 
-const selectPaymentMethod = (method: 'card' | 'sbp') => {
+const selectMethodAndAllowSubmit = (method: 'card' | 'sbp') => {
   selectedPaymentMethod.value = method;
 };
 
@@ -34,16 +40,21 @@ const sum = ref('');
 const errors = ref<Record<string, string>>({});
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
 
+const cardPaymentStatus = ref<'idle' | 'pending' | 'failed'>('idle'); // 'idle', 'pending', 'failed'
+const cardPaymentError = ref<string | null>(null);
+
 const openModal = () => {
   if (IDModalRef.value) {
     IDModalRef.value.open();
   }
 };
 
-const validateField = async (field: string, value: string) => {
+const validateField = async (field: 'id' | 'sum', value: string) => {
   try {
+    const valueToValidate =
+      field === 'sum' && value.trim() !== '' ? parseFloat(value) : value;
     const schema = Yup.reach(payDebtSchema, field) as Yup.AnySchema;
-    await schema.validate(value);
+    await schema.validate(valueToValidate);
     if (errors.value[field]) {
       delete errors.value[field];
       errors.value = { ...errors.value };
@@ -56,34 +67,94 @@ const validateField = async (field: string, value: string) => {
   }
 };
 
-const handleInput = (field: string, value: string) => {
-  validateField(field, value);
+const handleIdInput = (value: string) => {
+  id.value = value;
+  validateField('id', value);
+};
+
+const handleSumInput = (value: string) => {
+  sum.value = value;
+  validateField('sum', value);
 };
 
 const handleSubmit = async () => {
+  cardPaymentError.value = null;
+  if (selectedPaymentMethod.value === 'card') {
+    cardPaymentStatus.value = 'idle';
+  }
+
   try {
     await payDebtSchema.validate(
-      { id: id.value, sum: sum.value },
+      { id: id.value, sum: parseFloat(sum.value) },
       { abortEarly: false }
     );
     errors.value = {};
 
-    if (selectedPaymentMethod.value === 'card') {
-      sendMetrikaGoal('pay-debt-card');
-    } else if (selectedPaymentMethod.value === 'sbp') {
-      sendMetrikaGoal('pay-debt-sbp');
+    if (!selectedPaymentMethod.value) {
+      console.error('Способ оплаты не выбран перед отправкой формы');
+      cardPaymentError.value = 'Пожалуйста, выберите способ оплаты.';
+      return;
     }
 
-    await router.push({
-      path: '/payment',
-      query: { method: selectedPaymentMethod.value },
-    });
+    if (selectedPaymentMethod.value === 'card') {
+      sendMetrikaGoal('pay-debt-card');
+      globalStore.setIsLoading(true);
+      cardPaymentStatus.value = 'pending';
 
-    console.log('Оплата:', {
-      id: id.value,
-      sum: sum.value,
-      method: selectedPaymentMethod.value,
-    });
+      const paymentData: PaymentItem[] = [
+        {
+          title: `Оплата задолженности клиента (${id.value})`,
+          count: 1,
+          price: parseFloat(sum.value),
+        },
+      ];
+
+      try {
+        const response = await paymentEvent(paymentData);
+        if (response.result === 'success') {
+          cardPaymentStatus.value = 'idle';
+          globalStore.setIsSuccess(true);
+          await router.push({
+            path: '/payment',
+            query: {
+              method: 'card',
+              result: 'success',
+              amount: sum.value,
+              clientId: id.value,
+            },
+          });
+        } else {
+          cardPaymentStatus.value = 'failed';
+          cardPaymentError.value = `Платеж не удался (API: ${response.result}). Попробуйте снова.`;
+          globalStore.setIsSuccess(false);
+        }
+      } catch (error) {
+        console.error('Ошибка при вызове paymentEvent:', error);
+        cardPaymentStatus.value = 'failed';
+        cardPaymentError.value =
+          error instanceof Error
+            ? error.message
+            : 'Произошла неизвестная ошибка при оплате.';
+        globalStore.setIsSuccess(false);
+      } finally {
+        globalStore.setIsLoading(false);
+      }
+    } else if (selectedPaymentMethod.value === 'sbp') {
+      sendMetrikaGoal('pay-debt-sbp');
+      await router.push({
+        path: '/payment',
+        query: {
+          method: 'sbp',
+          amount: sum.value,
+          clientId: id.value,
+        },
+      });
+    }
+    // console.log('Оплата:', {
+    //   id: id.value,
+    //   sum: sum.value,
+    //   method: selectedPaymentMethod.value,
+    // });
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
       const newErrors: Record<string, string> = {};
@@ -94,16 +165,27 @@ const handleSubmit = async () => {
       });
       errors.value = newErrors;
     }
+    if (cardPaymentStatus.value === 'pending') {
+      cardPaymentStatus.value = 'idle';
+      globalStore.setIsLoading(false);
+    }
   }
 };
 
 const isFormValid = computed(() => {
+  const sumAsNumber = parseFloat(sum.value);
   return (
     id.value.trim() !== '' &&
     sum.value.trim() !== '' &&
+    !isNaN(sumAsNumber) &&
+    sumAsNumber > 0 &&
     Object.keys(errors.value).length === 0
   );
 });
+
+const isCardPaymentProcessing = computed(
+  () => cardPaymentStatus.value === 'pending'
+);
 </script>
 
 <template>
@@ -133,28 +215,35 @@ const isFormValid = computed(() => {
           <div class="pay-debt__form-label">Сумма платежа (руб.)</div>
           <VInput
             class="pay-debt__form-input"
-            v-model="id"
+            :model-value="id"
+            @update:model-value="handleIdInput"
             placeholder="ID Клиента"
             question
             @open-modal="openModal"
-            @input="handleInput('id', id)"
             :error="errors.id"
+            :disabled="isCardPaymentProcessing"
           />
           <VInput
             class="pay-debt__form-input"
-            v-model="sum"
+            type="number"
+            :model-value="sum"
+            @update:model-value="handleSumInput"
             placeholder="Сумма платежа (руб.)"
-            @input="handleInput('sum', sum)"
             :error="errors.sum"
+            :disabled="isCardPaymentProcessing"
           />
           <VButton
             variant="primary"
             type="submit"
             class="pay-debt__button-card"
-            :disabled="!isFormValid"
-            @click="selectPaymentMethod('card')"
+            :disabled="!isFormValid || isCardPaymentProcessing"
+            @click="selectMethodAndAllowSubmit('card')"
           >
-            Оплатить картой
+            <span
+              v-if="isCardPaymentProcessing && selectedPaymentMethod === 'card'"
+              >Обработка...</span
+            >
+            <span v-else>Оплатить картой</span>
             <IconMasterCard />
             <IconVisa />
             <IconMir />
@@ -163,12 +252,19 @@ const isFormValid = computed(() => {
             variant="outline"
             type="submit"
             class="pay-debt__button-sbp"
-            :disabled="!isFormValid"
-            @click="selectPaymentMethod('sbp')"
+            :disabled="!isFormValid || isCardPaymentProcessing"
+            @click="selectMethodAndAllowSubmit('sbp')"
           >
             Оплатить через СБП
-            <img :src="IconSBP" alt="" />
+            <img :src="IconSBP" alt="SBP Icon" />
           </VButton>
+        </div>
+        <!-- Отображение ошибки платежа картой -->
+        <div
+          v-if="cardPaymentStatus === 'failed' && cardPaymentError"
+          class="pay-debt__form-error-message"
+        >
+          {{ cardPaymentError }}
         </div>
       </form>
       <IDModal ref="IDModalRef" />
@@ -227,6 +323,14 @@ const isFormValid = computed(() => {
 
     &-label {
       font-weight: 700;
+    }
+
+    &-error-message {
+      grid-column: 1 / -1;
+      color: var(--red-primary, #d32f2f);
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 500;
     }
   }
 
