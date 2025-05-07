@@ -47,22 +47,28 @@ export async function checkClient(ceid: string): Promise<boolean> {
   }
 }
 
-export async function changePaperStatus(id: TERMINAL_ID): Promise<boolean> {
+export async function changeKKTStatus(id: number): Promise<boolean> {
   try {
-    const response = await axiosInstance.post<{ status: boolean }>(
-      '/ceid_info',
-      undefined,
-      {
-        params: {
-          ceid: ceid,
-        },
-      }
-    );
-    return response.data.status;
+    const payload = {
+      id: id,
+      kkt: false,
+    };
+
+    const response = await axiosInstance.post<{
+      status: string;
+      details: string;
+    }>('/api/terminals/edit', payload);
+
+    return response.data.status === 'success';
   } catch (error) {
-    console.error(`Failed to check client with CEID ${ceid}:`, error);
+    console.error(
+      `Failed to change paper status for terminal ID ${id}:`,
+      error
+    );
     throw new Error(
-      `Failed to check client status for CEID ${ceid}: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to change paper status for terminal ID ${id}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
     );
   }
 }

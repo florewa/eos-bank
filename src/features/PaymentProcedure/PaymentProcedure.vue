@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, defineProps } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import ReceiptPrintPrompt from '@/pages/payment-page/ui/ReceiptPrintPrompt/ReceiptPrintPrompt.vue';
 import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
@@ -12,6 +12,7 @@ import {
   paymentEvent,
   type PaymentItem,
   checkClient,
+  changeKKTStatus,
 } from '@/features/PaymentProcedure/model/api.ts';
 
 const props = defineProps<{
@@ -45,9 +46,19 @@ const handleCardPayment = async (clientId: string, amountNumber: number) => {
     ];
 
     const response = await paymentEvent(paymentData);
+
     if (response.result === 'success') {
       isPaymentSuccessful.value = true;
       globalStore.setIsSuccess(true);
+
+      if (response.description === 'paper_status=false') {
+        try {
+          const terminalId = window.TERMINAL_ID;
+          await changeKKTStatus(terminalId);
+        } catch (statusError) {
+          console.error('Ошибка при вызове changePaperStatus:', statusError);
+        }
+      }
     } else {
       paymentError.value = `Платеж не удался (API: ${response.result}).`;
       globalStore.setIsError(true);

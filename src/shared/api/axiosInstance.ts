@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
-export const API_URL = import.meta.env.VITE_API_URL;
-export const PAYMENT_URL = import.meta.env.VITE_PAYMENT_URL;
+export const API_URL = window.API;
+export const PAYMENT_URL = window.PAYMENT_API;
 
 if (!API_URL) {
   console.error('VITE_API_URL is not defined in .env file');
