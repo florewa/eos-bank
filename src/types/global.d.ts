@@ -7,6 +7,7 @@ declare global {
     API: string;
     TIMEOUT: number;
     TIMEOUT_IN_PAYMENT: number;
+    TERMINAL_ID: number;
     ym?: (...args: any[]) => void;
   }
 }

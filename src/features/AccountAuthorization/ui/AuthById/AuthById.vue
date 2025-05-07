@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import * as Yup from 'yup';
-import { authByIdSchema } from '@/shared/validation/validationSchemas';
+
 import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
-import { VButton, VCheckbox, VInput } from '@/shared/ui';
 import {
   authById,
   type AuthByIdForm,
   useAuthStore,
 } from '@/features/AccountAuthorization/model';
+import { VButton, VCheckbox, VInput } from '@/shared/ui';
+import { authByIdSchema } from '@/shared/validation/validationSchemas';
 
 defineProps<{
   openModal: () => void;

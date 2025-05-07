@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { AuthById, AuthByPersonal } from '@/features/AccountAuthorization';
-import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
 import { useAuthStore } from '@/features/AccountAuthorization/model';
+import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
 
 defineEmits<{
   (e: 'login', phone: string): void;
@@ -39,7 +40,7 @@ const openModalBySpanText = (spanText: string) => {
   }
 };
 
-watch(activeAuthMethod, (newMethod, oldMethod) => {
+watch(activeAuthMethod, (newMethod) => {
   if (newMethod === 'id' && authByPersonalRef.value) {
     authByPersonalRef.value.resetForm();
     authStore.error = null;
