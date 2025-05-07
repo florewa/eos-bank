@@ -9,6 +9,7 @@ const isOpen = ref(false);
 
 const open = () => {
   isOpen.value = true;
+  console.log('loader open');
 };
 
 const close = () => {

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 export const API_URL = import.meta.env.VITE_API_URL;
+export const PAYMENT_URL = import.meta.env.VITE_PAYMENT_URL;
 
 if (!API_URL) {
   console.error('VITE_API_URL is not defined in .env file');
@@ -9,6 +10,13 @@ if (!API_URL) {
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-type': 'application/json',
+  },
+});
+
+export const paymentApi = axios.create({
+  baseURL: PAYMENT_URL,
   headers: {
     'Content-type': 'application/json',
   },
@@ -36,6 +44,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     const globalStore = useGlobalStore();
     globalStore.setIsLoading(false);
+
     if (axios.isAxiosError(error)) {
       console.error(
         `Axios error ${error.response?.status}:`,
@@ -44,6 +53,34 @@ axiosInstance.interceptors.response.use(
     } else {
       console.error('Unexpected error:', error);
     }
+
+    return Promise.reject(error);
+  }
+);
+
+paymentApi.interceptors.request.use(
+  (config) => {
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+paymentApi.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        `Axios error ${error.response?.status}:`,
+        error.response?.data
+      );
+    } else {
+      console.error('Unexpected error:', error);
+    }
+
     return Promise.reject(error);
   }
 );

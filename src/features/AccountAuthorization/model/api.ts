@@ -1,9 +1,3 @@
-import {
-  signData,
-  createRequestSignatureString,
-  verifySignature,
-  createResponseSignatureString,
-} from '@/shared/utils/signature';
 import type {
   AuthByIdForm,
   AuthByPersonalForm,
@@ -19,28 +13,12 @@ export const authById = async (form: AuthByIdForm): Promise<AuthResponse> => {
     operation_name: 'authorization',
   };
 
-  const signatureString = createRequestSignatureString(payload);
-  console.log('AuthById signature string:', signatureString);
-  const computedSignature = signData(signatureString);
-  console.log('AuthById signature:', computedSignature);
-
   const response = await axiosInstance.get<AuthResponse>(
     '/api2/api/v1/authorization',
     {
-      params: { ...payload, signature: computedSignature },
+      params: payload,
     }
   );
-
-  const responseSignatureString = createResponseSignatureString(response.data);
-  console.log('AuthById response signature string:', responseSignatureString);
-  const isValid = verifySignature(
-    responseSignatureString,
-    response.data.signature
-  );
-  console.log('AuthById response signature valid:', isValid);
-  if (!isValid) {
-    throw new Error('Невалидная подпись ответа');
-  }
 
   return response.data;
 };
@@ -57,31 +35,12 @@ export const authByPersonal = async (
     operation_name: 'authorization',
   };
 
-  const signatureString = createRequestSignatureString(payload);
-  console.log('AuthByPersonal signature string:', signatureString);
-  const computedSignature = signData(signatureString);
-  console.log('AuthByPersonal signature:', computedSignature);
-
   const response = await axiosInstance.get<AuthResponse>(
     '/api2/api/v1/authorization',
     {
-      params: { ...payload, signature: computedSignature },
+      params: payload,
     }
   );
-
-  const responseSignatureString = createResponseSignatureString(response.data);
-  console.log(
-    'AuthByPersonal response signature string:',
-    responseSignatureString
-  );
-  const isValid = verifySignature(
-    responseSignatureString,
-    response.data.signature
-  );
-  console.log('AuthByPersonal response signature valid:', isValid);
-  if (!isValid) {
-    throw new Error('Невалидная подпись ответа');
-  }
 
   return response.data;
 };

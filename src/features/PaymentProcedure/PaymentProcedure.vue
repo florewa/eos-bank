@@ -11,6 +11,7 @@ import { VButton } from '@/shared/ui';
 import {
   paymentEvent,
   type PaymentItem,
+  checkClient,
 } from '@/features/PaymentProcedure/model/api.ts';
 
 const props = defineProps<{
@@ -33,40 +34,81 @@ const goBack = () => {
   }
 };
 
+const handleCardPayment = async (clientId: string, amountNumber: number) => {
+  try {
+    const paymentData: PaymentItem[] = [
+      {
+        title: `Оплата задолженности клиента ${clientId}`,
+        count: 1,
+        price: amountNumber,
+      },
+    ];
+
+    const response = await paymentEvent(paymentData);
+    if (response.result === 'success') {
+      isPaymentSuccessful.value = true;
+      globalStore.setIsSuccess(true);
+    } else {
+      paymentError.value = `Платеж не удался (API: ${response.result}).`;
+      globalStore.setIsError(true);
+    }
+  } catch (error) {
+    console.error('Ошибка при вызове paymentEvent:', error);
+    paymentError.value =
+      error instanceof Error
+        ? error.message
+        : 'Произошла неизвестная ошибка при оплате.';
+    globalStore.setIsError(true);
+  }
+};
+
 onMounted(async () => {
   globalStore.reset();
 
-  if (props.method === 'card') {
-    globalStore.setIsLoading(true);
-    try {
-      const paymentData: PaymentItem[] = [
-        {
-          title: `Оплата задолженности клиента (${props.clientId})`,
-          count: 1,
-          price: parseFloat(props.amount),
-        },
-      ];
+  if (!props.clientId) {
+    paymentError.value = 'ID клиента не указан.';
+    globalStore.setIsError(true);
+    return;
+  }
 
-      const response = await paymentEvent(paymentData);
-      if (response.result === 'success') {
-        isPaymentSuccessful.value = true;
-        globalStore.setIsSuccess(true);
-      } else {
-        paymentError.value = `Платеж не удался (API: ${response.result}).`;
-        globalStore.setIsError(true);
-      }
-    } catch (error) {
-      console.error('Ошибка при вызове paymentEvent:', error);
-      paymentError.value =
-        error instanceof Error
-          ? error.message
-          : 'Произошла неизвестная ошибка при оплате.';
+  let priceAmount: number | undefined;
+  if (props.method === 'card') {
+    if (!props.amount) {
+      paymentError.value = 'Сумма для оплаты не указана.';
       globalStore.setIsError(true);
-    } finally {
-      globalStore.setIsLoading(false);
+      return;
     }
-  } else if (props.method === 'sbp') {
-    // No API call for SBP, just display QR code
+    priceAmount = parseFloat(props.amount);
+    if (isNaN(priceAmount) || priceAmount <= 0) {
+      paymentError.value = 'Некорректная сумма для оплаты.';
+      globalStore.setIsError(true);
+      return;
+    }
+  }
+
+  try {
+    const canClientPay = await checkClient(props.clientId);
+
+    if (!canClientPay) {
+      paymentError.value = `Оплата для клиента ${props.clientId} невозможна (клиент заблокирован или отсутствует).`;
+      globalStore.setIsError(true);
+      return;
+    }
+
+    if (props.method === 'card' && priceAmount !== undefined) {
+      await handleCardPayment(props.clientId, priceAmount);
+    } else if (props.method === 'sbp') {
+    } else if (!props.method) {
+      paymentError.value = 'Метод оплаты не выбран.';
+      globalStore.setIsError(true);
+    }
+  } catch (error) {
+    console.error('Ошибка при проверке клиента:', error);
+    paymentError.value =
+      error instanceof Error
+        ? error.message
+        : 'Произошла ошибка при проверке статуса клиента.';
+    globalStore.setIsError(true);
   }
 });
 
@@ -126,13 +168,13 @@ const displayImage = computed(() => {
         </div>
         <h1
           class="payment-procedure__title"
-          :style="{ order: props.method === 'sbp' ? 0 : 1 }"
+          :style="{ order: props.method === 'sbp' && !paymentError ? 0 : 1 }"
         >
           {{ pageTitle }}
         </h1>
         <div
           class="payment-procedure__subtitle"
-          :style="{ order: props.method === 'sbp' ? 1 : 2 }"
+          :style="{ order: props.method === 'sbp' && !paymentError ? 1 : 2 }"
         >
           {{ pageSubtitle }}
         </div>

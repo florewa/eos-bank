@@ -69,6 +69,20 @@ const exitStandby = () => {
   }
 };
 
+const qrImage = ref('');
+const sbpUrl =
+  'https://qr.nspk.ru/AD20006QUJV3L4IP9TJ851N5D46CNKFE?type=02&bank=100000000004&sum=70000&cur=RUB&crc=B197#';
+
+import QRCode from 'qrcode';
+
+onMounted(() => {
+  QRCode.toDataURL(sbpUrl, { width: 400 }, (err, url) => {
+    if (!err) {
+      qrImage.value = url;
+    }
+  });
+});
+
 onMounted(() => {
   window.addEventListener('touchstart', exitStandby);
 });
@@ -81,6 +95,9 @@ useInactivity(modalRef, isStandby);
 </script>
 
 <template>
+  <!--  <div style="background-color: #faf5f7; border-radius: 30px; width: 400px">-->
+  <!--    <img style="mix-blend-mode: multiply" :src="qrImage" alt="СБП QR-код" />-->
+  <!--  </div>-->
   <div class="main" ref="app">
     <TheHeader />
     <main class="page">

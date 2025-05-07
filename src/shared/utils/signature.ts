@@ -8,10 +8,6 @@ if (!PRIVATE_KEY || !PUBLIC_KEY) {
   throw new Error('RSA keys are not configured in .env');
 }
 
-console.log('PRIVATE_KEY:', PRIVATE_KEY);
-console.log('PUBLIC_KEY:', PUBLIC_KEY);
-console.log('PASSPHRASE:', PASSPHRASE);
-
 export const signData = (data: string): string => {
   let privateKey;
   try {

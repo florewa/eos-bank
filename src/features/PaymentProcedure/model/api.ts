@@ -1,6 +1,4 @@
-import { axiosInstance } from '@/shared/api';
-
-export const PAYMENT_URL = import.meta.env.VITE_PAYMENT_URL;
+import { axiosInstance, paymentApi } from '@/shared/api/axiosInstance.ts';
 
 export interface PaymentItem {
   title: string;
@@ -10,8 +8,8 @@ export interface PaymentItem {
 
 export async function paymentEvent(paymentData: PaymentItem[]) {
   try {
-    const response = await axiosInstance.post<{ result: string }>(
-      'http://localhost:2707',
+    const response = await paymentApi.post<{ result: string }>(
+      '/',
       paymentData,
       {
         headers: {
@@ -24,6 +22,26 @@ export async function paymentEvent(paymentData: PaymentItem[]) {
     console.error('Payment event API call failed:', error);
     throw new Error(
       `Failed to process payment: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+export async function checkClient(ceid: string): Promise<boolean> {
+  try {
+    const response = await axiosInstance.post<{ status: boolean }>(
+      '/ceid_info',
+      undefined,
+      {
+        params: {
+          ceid: ceid,
+        },
+      }
+    );
+    return response.data.status;
+  } catch (error) {
+    console.error(`Failed to check client with CEID ${ceid}:`, error);
+    throw new Error(
+      `Failed to check client status for CEID ${ceid}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
