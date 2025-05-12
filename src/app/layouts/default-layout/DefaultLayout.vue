@@ -14,6 +14,7 @@ import { useInactivity } from '@/shared/lib/hooks/useInactivity.ts';
 import StandbyMode from '@/widgets/StandbyMode/StandbyMode.vue';
 
 const globalStore = useGlobalStore();
+const session = useSessionStore();
 const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
 const SuccessModalRef = ref<InstanceType<typeof SuccessPaymentModal> | null>(
   null
@@ -66,6 +67,7 @@ const exitStandby = () => {
   if (isStandby.value) {
     console.log('[App] Выход из режима ожидания');
     isStandby.value = false;
+    session.newSession();
   }
 };
 
@@ -74,6 +76,7 @@ const sbpUrl =
   'https://qr.nspk.ru/AD20006QUJV3L4IP9TJ851N5D46CNKFE?type=02&bank=100000000004&sum=70000&cur=RUB&crc=B197#';
 
 import QRCode from 'qrcode';
+import { useSessionStore } from '@/shared/store/sessionStore.ts';
 
 onMounted(() => {
   QRCode.toDataURL(sbpUrl, { width: 400 }, (err, url) => {

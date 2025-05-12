@@ -3,6 +3,7 @@ import type { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { RouteLocationNormalizedLoaded } from 'vue-router';
 import { useAuthStore } from '@/features/AccountAuthorization/model';
+import { useSessionStore } from '@/shared/store/sessionStore.ts';
 
 interface InactivityModal {
   open: () => void;
@@ -28,10 +29,13 @@ export function useInactivity(
       if (modalRef.value && !isStandby.value) {
         modalRef.value.open();
 
+        const session = useSessionStore();
+
         setTimeout(() => {
           if (modalRef.value && !isStandby.value) {
             authStore.clearAuthData();
             void router.push('/');
+            session.newSession();
             isStandby.value = true;
             modalRef.value.close();
           } else {

@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { DefaultLayout } from '@/app/layouts';
+import { useSessionStore } from '@/shared/store/sessionStore.ts';
 
 const route = useRoute();
 const layout = computed(() => route.meta.layout || DefaultLayout);
+
+onMounted(() => {
+  const session = useSessionStore();
+  session.newSession();
+});
 </script>
 
 <template>
