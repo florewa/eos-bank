@@ -114,11 +114,17 @@ onUnmounted(() => {
       <div class="keyboard__inner">
         <div class="keyboard__body">
           <div class="keyboard__actions">
-            <div class="keyboard__actions-item" @click="moveToPrevField">
+            <div
+              class="keyboard__actions-item"
+              @mousedown.prevent="moveToPrevField"
+            >
               <IconPrev />
               Предыдущее поле
             </div>
-            <div class="keyboard__actions-item" @click="moveToNextField">
+            <div
+              class="keyboard__actions-item"
+              @mousedown.prevent="moveToNextField"
+            >
               Следующее поле
               <IconNext />
             </div>
@@ -129,7 +135,7 @@ onUnmounted(() => {
                 v-for="key in '1234567890'"
                 :key="key"
                 class="key"
-                @click="handleKeyPress(key)"
+                @mousedown.prevent="handleKeyPress(key)"
               >
                 {{ key }}
               </button>
@@ -139,7 +145,7 @@ onUnmounted(() => {
                 v-for="key in 'йцукенгшщзхъ'"
                 :key="key"
                 class="key"
-                @click="handleKeyPress(key)"
+                @mousedown.prevent="handleKeyPress(key)"
               >
                 {{ isShift ? key.toUpperCase() : key }}
               </button>
@@ -149,7 +155,7 @@ onUnmounted(() => {
                 v-for="key in 'фывапролджэ'"
                 :key="key"
                 class="key"
-                @click="handleKeyPress(key)"
+                @mousedown.prevent="handleKeyPress(key)"
               >
                 {{ isShift ? key.toUpperCase() : key }}
               </button>
@@ -158,7 +164,7 @@ onUnmounted(() => {
               <button
                 class="key shift"
                 :class="{ active: isShift }"
-                @click="handleKeyPress('shift')"
+                @mousedown.prevent="handleKeyPress('shift')"
               >
                 <IconShift />
               </button>
@@ -166,22 +172,28 @@ onUnmounted(() => {
                 v-for="key in 'ячсмитьбю'"
                 :key="key"
                 class="key"
-                @click="handleKeyPress(key)"
+                @mousedown.prevent="handleKeyPress(key)"
               >
                 {{ isShift ? key.toUpperCase() : key }}
               </button>
               <button
                 class="key backspace"
-                @click="handleKeyPress('backspace')"
+                @mousedown.prevent="handleKeyPress('backspace')"
               >
                 <IconBackspace />
               </button>
             </div>
             <div class="keyboard__row last-row">
-              <button class="key space" @click="handleKeyPress('Пробел')">
+              <button
+                class="key space"
+                @mousedown.prevent="handleKeyPress('Пробел')"
+              >
                 Пробел
               </button>
-              <button class="key enter" @click="handleKeyPress('Ввод')">
+              <button
+                class="key enter"
+                @mousedown.prevent="handleKeyPress('Ввод')"
+              >
                 Ввод
               </button>
             </div>

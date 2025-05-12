@@ -27,6 +27,7 @@ const payDebtSchema = Yup.object({
   sum: Yup.number()
     .typeError('Сумма должна быть числом')
     .positive('Сумма должна быть положительной')
+    .min(10, 'Минимальная сумма операции через СПБ составляет 10 рублей')
     .required('Сумма платежа обязательна'),
 });
 
@@ -79,6 +80,11 @@ const handleSubmit = async () => {
 
     if (!selectedPaymentMethod.value) {
       errors.value['method'] = 'Пожалуйста, выберите способ оплаты.';
+      return;
+    }
+
+    if (selectedPaymentMethod.value === 'sbp' && parseFloat(sum.value) < 10) {
+      errors.value['sum'] = 'Минимальная сумма для СБП — 10 рублей';
       return;
     }
 
