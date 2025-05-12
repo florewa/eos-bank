@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, defineProps } from 'vue';
+import { onMounted, ref, computed, defineProps, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import QRCode from 'qrcode';
 
 import ReceiptPrintPrompt from '@/pages/payment-page/ui/ReceiptPrintPrompt/ReceiptPrintPrompt.vue';
 import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
-import mockQr from '@/shared/assets/img/MockQR.svg?url';
+import loaderSrc from '@/shared/assets/img/Loader.svg?url';
 import picSrc from '@/shared/assets/img/PaymentPic.svg?url';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { VButton } from '@/shared/ui';
@@ -13,6 +14,8 @@ import {
   type PaymentItem,
   checkClient,
   changeKKTStatus,
+  getPaymentQr,
+  type GetPaymentQrParams,
 } from '@/features/PaymentProcedure/model/api.ts';
 
 const props = defineProps<{
@@ -26,6 +29,10 @@ const router = useRouter();
 
 const isPaymentSuccessful = ref(false);
 const paymentError = ref<string | null>(null);
+const paymentQrCodeUrl = ref<string | null>(null);
+const sbpLoading = ref<boolean>(false);
+
+const qrImage = ref<string | null>(null);
 
 const goBack = () => {
   if (props.method || props.clientId) {
@@ -60,7 +67,7 @@ const handleCardPayment = async (clientId: string, amountNumber: number) => {
         }
       }
     } else {
-      paymentError.value = `Платеж не удался (API: ${response.result}).`;
+      paymentError.value = `Платеж не удался (API: ${response.result}). Детали: ${response.description}`;
       globalStore.setIsError(true);
     }
   } catch (error) {
@@ -73,6 +80,63 @@ const handleCardPayment = async (clientId: string, amountNumber: number) => {
   }
 };
 
+const handleSbpPayment = async (clientId: string, amountStr: string) => {
+  sbpLoading.value = true;
+  paymentError.value = null;
+  paymentQrCodeUrl.value = null;
+
+  if (!amountStr) {
+    paymentError.value = 'Сумма для оплаты СБП не указана.';
+    globalStore.setIsError(true);
+    sbpLoading.value = false;
+    return;
+  }
+
+  const amountInRub = parseFloat(amountStr);
+  if (isNaN(amountInRub)) {
+    paymentError.value = 'Некорректная сумма для оплаты СБП.';
+    globalStore.setIsError(true);
+    sbpLoading.value = false;
+    return;
+  }
+
+  if (amountInRub < 10) {
+    paymentError.value =
+      'Минимальная сумма операции через СБП составляет 10 рублей.';
+    globalStore.setIsError(true);
+    sbpLoading.value = false;
+    return;
+  }
+
+  const amountInKopecks = Math.round(amountInRub * 100);
+
+  try {
+    const qrParams: GetPaymentQrParams = {
+      ceid: clientId,
+      amount: amountInKopecks,
+    };
+
+    // if (window.TERMINAL_CONFIG?.typePlatform) {
+    //   qrParams.typePlatform = window.TERMINAL_CONFIG.typePlatform;
+    // }
+    // if (window.TERMINAL_CONFIG?.yaClientId) {
+    //   qrParams.ya_client_id = window.TERMINAL_CONFIG.yaClientId;
+    // }
+
+    const qrData = await getPaymentQr(qrParams);
+    paymentQrCodeUrl.value = qrData.sbp;
+  } catch (error) {
+    console.error('Ошибка при получении QR-кода СБП:', error);
+    paymentError.value =
+      error instanceof Error
+        ? error.message
+        : 'Произошла ошибка при получении QR-кода для оплаты СБП.';
+    globalStore.setIsError(true);
+  } finally {
+    sbpLoading.value = false;
+  }
+};
+
 onMounted(async () => {
   globalStore.reset();
 
@@ -82,36 +146,12 @@ onMounted(async () => {
     return;
   }
 
-  let priceAmount: number | undefined;
-  if (props.method === 'card') {
-    if (!props.amount) {
-      paymentError.value = 'Сумма для оплаты не указана.';
-      globalStore.setIsError(true);
-      return;
-    }
-    priceAmount = parseFloat(props.amount);
-    if (isNaN(priceAmount) || priceAmount <= 0) {
-      paymentError.value = 'Некорректная сумма для оплаты.';
-      globalStore.setIsError(true);
-      return;
-    }
-  }
-
   try {
     const canClientPay = await checkClient(props.clientId);
-
     if (!canClientPay) {
       paymentError.value = `Оплата для клиента ${props.clientId} невозможна (клиент заблокирован или отсутствует).`;
       globalStore.setIsError(true);
       return;
-    }
-
-    if (props.method === 'card' && priceAmount !== undefined) {
-      await handleCardPayment(props.clientId, priceAmount);
-    } else if (props.method === 'sbp') {
-    } else if (!props.method) {
-      paymentError.value = 'Метод оплаты не выбран.';
-      globalStore.setIsError(true);
     }
   } catch (error) {
     console.error('Ошибка при проверке клиента:', error);
@@ -119,6 +159,27 @@ onMounted(async () => {
       error instanceof Error
         ? error.message
         : 'Произошла ошибка при проверке статуса клиента.';
+    globalStore.setIsError(true);
+    return;
+  }
+
+  if (props.method === 'card') {
+    if (!props.amount) {
+      paymentError.value = 'Сумма для оплаты не указана.';
+      globalStore.setIsError(true);
+      return;
+    }
+    const priceAmount = parseFloat(props.amount);
+    if (isNaN(priceAmount) || priceAmount <= 0) {
+      paymentError.value = 'Некорректная сумма для оплаты.';
+      globalStore.setIsError(true);
+      return;
+    }
+    await handleCardPayment(props.clientId, priceAmount);
+  } else if (props.method === 'sbp') {
+    await handleSbpPayment(props.clientId, props.amount);
+  } else if (!props.method) {
+    paymentError.value = 'Метод оплаты не выбран.';
     globalStore.setIsError(true);
   }
 });
@@ -128,9 +189,7 @@ const pageTitle = computed(() => {
     return 'Оплата через СБП';
   }
   if (props.method === 'card') {
-    return isPaymentSuccessful.value
-      ? 'Оплата прошла успешно'
-      : 'Оплата банковской картой';
+    return 'Оплата банковской картой';
   }
   return 'Процесс оплаты';
 });
@@ -140,15 +199,34 @@ const pageSubtitle = computed(() => {
     return 'Сканируйте QR-код для продолжения оплаты';
   }
   if (props.method === 'card') {
-    return isPaymentSuccessful.value
-      ? `Сумма: ${props.amount || 'N/A'} руб. Клиент ID: ${props.clientId || 'N/A'}`
-      : 'Используйте терминал оплаты';
+    return 'Используйте терминал оплаты';
   }
-  return 'Пожалуйста, подождите';
+  return '';
+});
+
+watch(paymentQrCodeUrl, (newValue) => {
+  if (newValue) {
+    QRCode.toDataURL(newValue, { width: 400 }, (err, url) => {
+      if (!err) {
+        qrImage.value = url;
+      } else {
+        console.error('Ошибка при генерации QR:', err);
+        qrImage.value = null;
+      }
+    });
+  } else {
+    qrImage.value = null;
+  }
 });
 
 const displayImage = computed(() => {
-  return props.method === 'sbp' ? mockQr : picSrc;
+  if (props.method === 'sbp') {
+    if (qrImage.value && !paymentError.value && !sbpLoading.value) {
+      return qrImage.value;
+    }
+    return null;
+  }
+  return picSrc;
 });
 </script>
 
@@ -166,28 +244,50 @@ const displayImage = computed(() => {
         </VButton>
       </div>
       <div class="payment-procedure__body">
-        <div
-          class="payment-procedure__picture"
-          :style="{ order: props.method === 'sbp' ? 2 : 0 }"
-        >
-          <img
-            :src="displayImage"
-            alt="payment image"
-            width="400"
-            height="400"
-          />
-        </div>
         <h1
           class="payment-procedure__title"
-          :style="{ order: props.method === 'sbp' && !paymentError ? 0 : 1 }"
+          :style="{
+            order:
+              props.method === 'sbp' && !paymentError && !sbpLoading ? 0 : 1,
+          }"
         >
           {{ pageTitle }}
         </h1>
         <div
           class="payment-procedure__subtitle"
-          :style="{ order: props.method === 'sbp' && !paymentError ? 1 : 2 }"
+          :style="{
+            order:
+              props.method === 'sbp' && !paymentError && !sbpLoading ? 1 : 2,
+          }"
         >
           {{ pageSubtitle }}
+        </div>
+        <div
+          class="payment-procedure__picture"
+          :style="{
+            order:
+              props.method === 'sbp' && !paymentError && !sbpLoading ? 2 : 0,
+          }"
+        >
+          <div
+            v-if="props.method === 'sbp' && sbpLoading"
+            class="payment-procedure__qr-loader"
+          >
+            <img
+              :src="loaderSrc"
+              width="128"
+              height="128"
+              alt="Загрузка..."
+              class="payment-procedure__loader-img"
+            />
+          </div>
+          <img
+            v-else-if="displayImage"
+            :src="displayImage"
+            alt="payment visualization"
+            width="400"
+            height="400"
+          />
         </div>
       </div>
     </div>
@@ -196,12 +296,9 @@ const displayImage = computed(() => {
       :amount="props.amount ? parseFloat(props.amount) : undefined"
       :client-id="props.clientId"
       @printReceipt="
-        console.log(
-          'Печатаем чек для ID:',
-          props.clientId,
-          'на сумму:',
-          props.amount
-        )
+        () => {
+          router.push('/');
+        }
       "
       @skipReceipt="router.push('/')"
     />
@@ -237,6 +334,10 @@ const displayImage = computed(() => {
     margin-bottom: 40px;
   }
 
+  &__loader-img {
+    animation: spin 1s linear infinite;
+  }
+
   &__title {
     font-size: 64px;
   }
@@ -265,6 +366,15 @@ const displayImage = computed(() => {
     color: var(--red-primary, #d32f2f);
     font-size: 24px;
     margin-top: 20px;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

@@ -6,6 +6,32 @@ export interface PaymentItem {
   price: number;
 }
 
+export interface PaymentQrResponse {
+  ceid: string;
+  amount: string;
+  typePlatform?: string;
+  ya_client_id?: string;
+  payment_id: string;
+  uid: string;
+  url: string;
+  sbp: string;
+}
+
+export interface GetPaymentQrParams {
+  ceid: string;
+  amount: number; // Сумма в копейках или рублях? В примере 70000, похоже на копейки для 700.00. Уточните!
+  // Если это рубли, то amount: number. Если копейки, то тоже number. API ожидает строку.
+  typePlatform?: string; // Необязательный параметр
+  ya_client_id?: string; // Необязательный параметр
+}
+
+interface PaymentQrApiPayload {
+  ceid: string;
+  amount: string;
+  typePlatform?: string;
+  ya_client_id?: string;
+}
+
 const TERMINAL_ID = window.TERMINAL_ID;
 
 export async function paymentEvent(paymentData: PaymentItem[]) {
@@ -67,6 +93,36 @@ export async function changeKKTStatus(id: number): Promise<boolean> {
     );
     throw new Error(
       `Failed to change paper status for terminal ID ${id}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+}
+
+export async function getPaymentQr(
+  params: GetPaymentQrParams
+): Promise<PaymentQrResponse> {
+  const payload: PaymentQrApiPayload = {
+    ceid: params.ceid,
+    amount: String(params.amount),
+    typePlatform: 'terminal',
+  };
+
+  if (params.ya_client_id !== undefined) {
+    payload.ya_client_id = params.ya_client_id;
+  }
+
+  try {
+    const response = await paymentApi.post<PaymentQrResponse>('/sbp', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to get QR-code`, error);
+    throw new Error(
+      `Failed to get QR-code ${
         error instanceof Error ? error.message : String(error)
       }`
     );
