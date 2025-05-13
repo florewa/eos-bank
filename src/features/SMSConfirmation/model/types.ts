@@ -9,10 +9,8 @@ export interface SendSMSResponse {
   session_id: string;
   operation_name: string;
   status: boolean;
-  result: {
-    token_sms: string;
-    sms_status: number; // Статус отправки SMS
-  };
+  token_sms: string;
+  sms_status: number; // Статус отправки SMS
   signature: string;
   error: string;
 }
@@ -29,10 +27,8 @@ export interface CheckSMSResponse {
   session_id: string;
   operation_name: string;
   status: boolean;
-  result: {
-    token_sms: string;
-    sms_check: number; // Результат проверки кода
-  };
+  token_sms: string;
+  sms_check: number; // Результат проверки кода
   signature: string;
   error: string;
 }

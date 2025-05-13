@@ -80,7 +80,7 @@ const submitCode = async () => {
       text_sms: codeStr,
     };
     const response = await checkSMS(payload);
-    if (response.result.sms_check === 1) {
+    if (response.sms_check === 1) {
       error.value = null;
       document.dispatchEvent(new Event('hideNumpad'));
       authStore.isAuthenticated = true;
@@ -103,7 +103,7 @@ const resendCode = async () => {
         token_sms: authStore.tokenSms!,
       };
       const response = await sendSMS(payload);
-      if (response.result.sms_status === 1) {
+      if (response.sms_status === 1) {
         timer.value = 59;
         isTimerActive.value = true;
         startTimer();
