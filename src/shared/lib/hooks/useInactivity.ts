@@ -46,9 +46,18 @@ export function useInactivity(
     }, timeoutDuration);
   };
 
-  const activityEvents = ['touchstart', 'touchmove', 'touchend'];
+  const activityEvents = [
+    'touchstart',
+    'touchmove',
+    'touchend',
+    'mousedown',
+    'click',
+  ];
 
   const handleActivity = () => {
+    if (isStandby.value) {
+      isStandby.value = false;
+    }
     resetTimer();
   };
 

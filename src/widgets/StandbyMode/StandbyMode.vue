@@ -74,7 +74,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .standby {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background-color: var(--background-colors-light-green2);
 
