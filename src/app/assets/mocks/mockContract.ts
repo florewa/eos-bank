@@ -1,122 +1,61 @@
-export interface Promotion {
-  title: string;
-  contractNumber: string;
-  discount: string;
-  validity: string;
-}
-
-export interface Contract {
-  contractNumber: string;
-  debtorId: number;
-  debtAmount: string;
-  bankName: string;
-  contractDate: string;
-  shares: number;
-  remainingDebt: string;
-  promotions: Promotion[];
-}
-
-export const mockContracts: Contract[] = [
+export const mockUserStock = [
   {
-    contractNumber: '12',
-    debtorId: 4313,
-    debtAmount: '156 256,97 ₽',
-    bankName: 'СБЕР',
-    contractDate: '12 мая 2025',
-    shares: 1234,
-    remainingDebt: '123 256,97 ₽',
-    promotions: [
-      {
-        title: 'Летняя скидка',
-        contractNumber: '12',
-        discount: '10%',
-        validity: 'с июня по август',
-      },
-      {
-        title: 'Дополнительный бонус',
-        contractNumber: '12',
-        discount: '5 000,00 ₽',
-        validity: 'с мая по июль',
-      },
-    ],
+    start_discount_date: '2025-06-01',
+    end_discount_date: '2025-08-31',
+    amount: '123256.97',
+    discount: '12325.70',
+    discount_prc: '10%',
+    discount_jnl_id: '1001',
+    discount_status: '0',
+    discount_name: 'Летняя скидка',
+    promo: 'лето2025',
+    discount_type: '1',
+    discount_type_name: 'Базовый',
+    contract_number: '12',
   },
   {
-    contractNumber: '11',
-    debtorId: 4313,
-    debtAmount: '156 256,97 ₽',
-    bankName: 'СБЕР',
-    contractDate: '12 мая 2025',
-    shares: 1234,
-    remainingDebt: '123 256,97 ₽',
-    promotions: [
-      {
-        title: 'Летняя скидка',
-        contractNumber: '12',
-        discount: '10%',
-        validity: 'с июня по август',
-      },
-      {
-        title: 'Дополнительный бонус',
-        contractNumber: '12',
-        discount: '5 000,00 ₽',
-        validity: 'с мая по июль',
-      },
-    ],
+    start_discount_date: '2025-05-01',
+    end_discount_date: '2025-07-31',
+    amount: '123256.97',
+    discount: '5000.00',
+    discount_prc: '4%',
+    discount_jnl_id: '1002',
+    discount_status: '0',
+    discount_name: 'Дополнительный бонус',
+    promo: 'бонус2025',
+    discount_type: '2',
+    discount_type_name: 'Индивидуальный',
+    contract_number: '12',
+  },
+  // Для других договоров:
+  {
+    start_discount_date: '2025-07-01',
+    end_discount_date: '2025-09-30',
+    amount: '200000.00',
+    discount: '25000.00',
+    discount_prc: '12%',
+    discount_jnl_id: '1003',
+    discount_status: '0',
+    discount_name: 'Сезонное предложение',
+    promo: 'сезон2025',
+    discount_type: '2',
+    discount_type_name: 'Индивидуальный',
+    contract_number: '13',
   },
   {
-    contractNumber: '13',
-    debtorId: 4314,
-    debtAmount: '245 789,45 ₽',
-    bankName: 'СБЕР',
-    contractDate: '15 июня 2025',
-    shares: 567,
-    remainingDebt: '200 000,00 ₽',
-    promotions: [
-      {
-        title: 'Сезонное предложение',
-        contractNumber: '13',
-        discount: '25 000,00 ₽',
-        validity: 'с июля по сентябрь',
-      },
-    ],
-  },
-  {
-    contractNumber: '14',
-    debtorId: 4315,
-    debtAmount: '89 123,50 ₽',
-    bankName: 'СБЕР',
-    contractDate: '20 июля 2025',
-    shares: 890,
-    remainingDebt: '75 000,00 ₽',
-    promotions: [],
-  },
-  {
-    contractNumber: '15',
-    debtorId: 4316,
-    debtAmount: '321 654,78 ₽',
-    bankName: 'СБЕР',
-    contractDate: '25 августа 2025',
-    shares: 432,
-    remainingDebt: '300 000,00 ₽',
-    promotions: [
-      {
-        title: 'Осенняя акция',
-        contractNumber: '15',
-        discount: '15%',
-        validity: 'с сентября по ноябрь',
-      },
-    ],
-  },
-  {
-    contractNumber: '16',
-    debtorId: 4317,
-    debtAmount: '178 999,99 ₽',
-    bankName: 'СБЕР',
-    contractDate: '30 сентября 2025',
-    shares: 1000,
-    remainingDebt: '150 000,00 ₽',
-    promotions: [],
+    start_discount_date: '2025-09-01',
+    end_discount_date: '2025-11-30',
+    amount: '300000.00',
+    discount: '45000.00',
+    discount_prc: '15%',
+    discount_jnl_id: '1004',
+    discount_status: '0',
+    discount_name: 'Осенняя акция',
+    promo: 'осень2025',
+    discount_type: '1',
+    discount_type_name: 'Базовый',
+    contract_number: '15',
   },
 ];
 
-export default mockContracts;
+export default mockUserStock;

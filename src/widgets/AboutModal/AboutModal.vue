@@ -69,6 +69,7 @@ defineExpose({ open });
   }
 
   &__text {
+    max-width: 952px;
     font-size: 24px;
   }
 }

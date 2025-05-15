@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import mockContracts from '@/app/assets/mocks/mockContract.ts';
 import IconPromotion from '@/shared/assets/icons/IconPromotion.svg';
@@ -18,6 +18,13 @@ const selectContract = (index: number) => {
     emit('contract-selected', index);
   }
 };
+
+onMounted(() => {
+  if (mockContracts.length > 0) {
+    selectedContract.value = 0;
+    emit('contract-selected', 0);
+  }
+});
 </script>
 
 <template>
