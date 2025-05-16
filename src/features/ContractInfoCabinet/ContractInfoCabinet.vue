@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
 
-import type { Contract } from '@/app/assets/mocks/mockContract.ts';
 import IconArrowLeft from '@/shared/assets/icons/IconArrowLeft.svg';
 import { VButton } from '@/shared/ui';
 
+import type { DebtInfo } from '@/entities/user/types.ts';
+import type { UserStockItem } from '@/entities/user/types.ts';
+
 defineProps<{
-  contract: Contract | null;
+  contract: DebtInfo | null;
+  promotions: UserStockItem[];
 }>();
 
 const emit = defineEmits(['back']);
@@ -24,24 +27,52 @@ const hidePaymentScreen = () => {
           <IconArrowLeft />
           Назад
         </VButton>
-        <h1 class="pay-debt__title">Договор №{{ contract?.contractNumber }}</h1>
+        <h1 class="pay-debt__title">
+          Договор №{{ contract?.contract_number }}
+        </h1>
       </div>
       <div class="pay-debt__content">
         <div class="pay-debt__title h1">Информация о договоре</div>
         <div class="pay-debt__row">
           <div class="pay-debt__content-item">
-            Номер договора: <b>{{ contract?.contractNumber }}</b>
+            Номер договора: <b>{{ contract?.contract_number }}</b>
           </div>
           <div class="pay-debt__content-item">
-            ID должника: <b>{{ contract?.debtorId }}</b>
+            ID должника: <b>{{ contract?.ceid }}</b>
           </div>
           <div class="pay-debt__content-item">
-            Сумма задолженности: <b>{{ contract?.debtAmount }}</b>
+            Сумма задолженности: <b>{{ contract?.debt_fnc_amount }}</b>
           </div>
         </div>
         <div class="pay-debt__row">
           <div class="pay-debt__content-item">
-            Остаток задолженности: <span>{{ contract?.remainingDebt }}</span>
+            Остаток задолженности: <span>{{ contract?.debt_fnc_balance }}</span>
+          </div>
+        </div>
+        <div v-if="promotions.length" class="pay-debt__promotions">
+          <div class="pay-debt__title h1">Доступные акции</div>
+          <div
+            v-for="promo in promotions"
+            :key="promo.discount_jnl_id"
+            class="pay-debt__promotion"
+          >
+            <div>
+              <b>{{ promo.discount_name }}</b>
+              <span v-if="promo.discount_prc">({{ promo.discount_prc }})</span>
+            </div>
+            <div>
+              Скидка: <b>{{ promo.discount }}</b>
+            </div>
+            <div>
+              Период:
+              <b
+                >{{ promo.start_discount_date }} —
+                {{ promo.end_discount_date }}</b
+              >
+            </div>
+            <div>
+              Промокод: <b>{{ promo.promo }}</b>
+            </div>
           </div>
         </div>
       </div>

@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
-import mockContracts from '@/app/assets/mocks/mockContract.ts';
+import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
 
 const isBlurred = ref(true);
 
 const toggleBlur = () => {
   isBlurred.value = !isBlurred.value;
 };
-const totalContracts = computed(() => mockContracts.length);
+
+const debts = mockUserStatistics.result.debts;
+
+const totalContracts = computed(() => debts.length);
 
 const totalDebt = computed(() => {
   return (
-    mockContracts
-      .reduce((sum, contract) => {
-        const debt = parseFloat(
-          contract.debtAmount
-            .replace(/\s/g, '')
-            .replace(',', '.')
-            .replace('₽', '')
+    debts
+      .reduce((sum, debt) => {
+        const amount = parseFloat(
+          debt.debt_fnc_amount.replace(/\s/g, '').replace(',', '.')
         );
-        return sum + debt;
+        return sum + amount;
       }, 0)
       .toLocaleString('ru-RU', {
         minimumFractionDigits: 2,

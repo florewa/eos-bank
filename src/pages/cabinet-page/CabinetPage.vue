@@ -1,22 +1,41 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-import { type Contract } from '@/app/assets/mocks/mockContract.ts';
 import { ContractInfo, ContractInfoCabinet, DebtCabinetForm } from '@/features';
 import PersonalInfo from '@/pages/cabinet-page/ui/PersonalInfo/PersonalInfo.vue';
 import TotalDebt from '@/pages/cabinet-page/ui/TotalDebt/TotalDebt.vue';
 
-const isPaymentScreen = ref(false);
-const selectedContract = ref<Contract | null>(null);
+import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
+import mockUserStock from '@/app/assets/mocks/mockContract.ts';
 
-const showPaymentScreen = (contract: Contract) => {
-  selectedContract.value = contract;
+const isPaymentScreen = ref(false);
+const selectedContractIndex = ref<number | null>(null);
+
+const debts = mockUserStatistics.result.debts;
+
+const selectedContract = computed(() =>
+  selectedContractIndex.value !== null
+    ? debts[selectedContractIndex.value]
+    : null
+);
+
+const selectedPromotions = computed(() =>
+  selectedContract.value
+    ? mockUserStock.filter(
+        (promo) =>
+          promo.contract_number === selectedContract.value.contract_number
+      )
+    : []
+);
+
+const showPaymentScreen = (index: number) => {
+  selectedContractIndex.value = index;
   isPaymentScreen.value = true;
 };
 
 const hidePaymentScreen = () => {
   isPaymentScreen.value = false;
-  selectedContract.value = null;
+  selectedContractIndex.value = null;
 };
 </script>
 
@@ -31,6 +50,7 @@ const hidePaymentScreen = () => {
     <template v-else>
       <ContractInfoCabinet
         :contract="selectedContract"
+        :promotions="selectedPromotions"
         @back="hidePaymentScreen"
       />
       <DebtCabinetForm />

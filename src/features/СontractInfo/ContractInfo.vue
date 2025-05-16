@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import mockContracts from '@/app/assets/mocks/mockContract.ts';
 import SelectContract from '@/features/СontractInfo/ui/SelectContract/SelectContract.vue';
 import IconInfo from '@/shared/assets/icons/IconInfo2.svg';
 import { VButton } from '@/shared/ui';
 import { PromotionsModal } from '@/widgets';
+
+import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
+import mockUserStock from '@/app/assets/mocks/mockContract.ts';
+
+const debts = mockUserStatistics.result.debts;
 
 const isContractSelected = ref(false);
 const selectedContractIndex = ref<number | null>(null);
@@ -24,8 +28,17 @@ const handleContractDeselected = () => {
 
 const selectedContract = computed(() =>
   selectedContractIndex.value !== null
-    ? mockContracts[selectedContractIndex.value]
+    ? debts[selectedContractIndex.value]
     : null
+);
+
+const promotions = computed(() =>
+  selectedContract.value
+    ? mockUserStock.filter(
+        (promo) =>
+          promo.contract_number === selectedContract.value.contract_number
+      )
+    : []
 );
 
 const PromotionsModalRef = ref<InstanceType<typeof PromotionsModal> | null>(
@@ -39,8 +52,8 @@ const openModal = () => {
 };
 
 const goToPayment = () => {
-  if (selectedContract.value) {
-    emit('pay', selectedContract.value);
+  if (selectedContractIndex.value !== null) {
+    emit('pay', selectedContractIndex.value);
   }
 };
 </script>
@@ -62,34 +75,32 @@ const goToPayment = () => {
         <div class="contract-info__title h1">Информация о договоре</div>
         <div class="contract-info__row">
           <div class="contract-info__item">
-            Номер договора: <b>{{ selectedContract.contractNumber }}</b>
+            Номер договора: <b>{{ selectedContract.contract_number }}</b>
           </div>
           <div class="contract-info__item">
-            ID должника: <b>{{ selectedContract.debtorId }}</b>
+            ID должника: <b>{{ selectedContract.ceid }}</b>
           </div>
           <div class="contract-info__item">
-            Сумма задолженности: <b>{{ selectedContract.debtAmount }}</b>
+            Сумма задолженности: <b>{{ selectedContract.debt_fnc_amount }}</b>
           </div>
         </div>
         <div class="contract-info__row">
           <div class="contract-info__item">
-            Название банка: <b>{{ selectedContract.bankName }}</b>
+            Название банка: <b>{{ selectedContract.bank_name }}</b>
           </div>
           <div class="contract-info__item">
-            Дата заключения договора: <b>{{ selectedContract.contractDate }}</b>
+            Дата заключения договора:
+            <b>{{ selectedContract.contract_date }}</b>
           </div>
           <div class="contract-info__item">
-            Акции: <span>{{ selectedContract.promotions.length }}</span>
-            <IconInfo
-              v-if="selectedContract.promotions.length > 0"
-              @click="openModal"
-            />
+            Акции: <span>{{ promotions.length }}</span>
+            <IconInfo v-if="promotions.length > 0" @click="openModal" />
           </div>
         </div>
         <div class="contract-info__row">
           <div class="contract-info__item">
             Остаток задолженности:
-            <span>{{ selectedContract.remainingDebt }}</span>
+            <span>{{ selectedContract.debt_fnc_balance }}</span>
           </div>
         </div>
       </div>
@@ -104,7 +115,7 @@ const goToPayment = () => {
       <PromotionsModal
         full-width
         ref="PromotionsModalRef"
-        :promotions="selectedContract?.promotions || []"
+        :promotions="promotions"
       />
     </div>
   </section>
@@ -135,9 +146,11 @@ const goToPayment = () => {
     display: flex;
     gap: 12px;
     align-items: center;
+    position: relative;
 
     svg {
-      margin-left: 12px;
+      position: absolute;
+      right: -40px;
       color: var(--red-third);
       cursor: pointer;
     }

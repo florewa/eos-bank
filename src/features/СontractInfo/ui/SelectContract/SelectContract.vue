@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import mockContracts from '@/app/assets/mocks/mockContract.ts';
+import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
 import IconPromotion from '@/shared/assets/icons/IconPromotion.svg';
 import { VButton } from '@/shared/ui';
+
+const debts = mockUserStatistics.result.debts;
 
 const selectedContract = ref<number | null>(null);
 
@@ -20,7 +22,7 @@ const selectContract = (index: number) => {
 };
 
 onMounted(() => {
-  if (mockContracts.length > 0) {
+  if (debts.length > 0) {
     selectedContract.value = 0;
     emit('contract-selected', 0);
   }
@@ -32,7 +34,7 @@ onMounted(() => {
     <div class="select-contract__body">
       <div class="select-contract__list">
         <div
-          v-for="(contract, index) in mockContracts"
+          v-for="(contract, index) in debts"
           :key="index"
           class="select-contract__list-item"
         >
@@ -40,8 +42,8 @@ onMounted(() => {
             class="select-contract__list-item__name"
             :class="{ fw700: selectedContract === index }"
           >
-            Договор <span>№{{ contract.contractNumber }}</span>
-            <IconPromotion v-if="contract.promotions.length > 0" />
+            Договор <span>№{{ contract.contract_number }}</span>
+            <IconPromotion v-if="contract.hasPromotions" />
           </div>
           <div class="select-contract__list-item__action">
             <VButton
