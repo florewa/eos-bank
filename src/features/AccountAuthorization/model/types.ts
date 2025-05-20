@@ -16,7 +16,6 @@ export interface AuthByPersonalForm {
 
 export interface AuthResponse {
   session_id: string; // Идентификатор сессии
-  operation_name: string; // Название операции
   status: boolean; // Статус операции
   result: {
     auth_code: 0 | 1 | 2; // Результат авторизации: 0 - не авторизован, 1 - авторизован, 2 - авторизован, но доступ закрыт

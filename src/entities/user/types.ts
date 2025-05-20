@@ -35,8 +35,6 @@ export interface UserStatisticsResponse {
   error: string;
 }
 
-// types.ts
-
 export interface UserStockItem {
   start_discount_date: string;
   end_discount_date: string;

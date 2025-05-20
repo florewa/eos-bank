@@ -8,6 +8,10 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const error = ref<string | null>(null);
 
+  const userData = ref(null);
+  const userStatistics = ref(null);
+  const userStock = ref(null);
+
   const setAuthData = (response: AuthResponse) => {
     sessionId.value = response.session_id;
     tokenSms.value = response.result.token_sms;
@@ -23,11 +27,26 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true;
   };
 
+  const setUserData = (data) => {
+    userData.value = data;
+  };
+
+  const setUserStatistics = (data) => {
+    userStatistics.value = data;
+  };
+
+  const setUserStock = (data) => {
+    userStock.value = data;
+  };
+
   const clearAuthData = () => {
     sessionId.value = null;
     tokenSms.value = null;
     isAuthenticated.value = false;
     error.value = null;
+    userData.value = null;
+    userStatistics.value = null;
+    userStock.value = null;
     localStorage.removeItem('session_id');
     localStorage.removeItem('token_sms');
   };
@@ -37,8 +56,14 @@ export const useAuthStore = defineStore('auth', () => {
     tokenSms,
     isAuthenticated,
     error,
+    userData,
+    userStatistics,
+    userStock,
     setAuthData,
     setAuthenticated,
+    setUserData,
+    setUserStatistics,
+    setUserStock,
     clearAuthData,
   };
 });

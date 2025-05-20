@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 import { InactivityModal, VKeyboard } from '@/shared/ui';
 import {
-  ErrorPaymentModal,
+  ErrorModal,
   LoaderModal,
   SuccessPaymentModal,
   TheFooter,
@@ -19,7 +19,7 @@ const LoaderModalRef = ref<InstanceType<typeof LoaderModal> | null>(null);
 const SuccessModalRef = ref<InstanceType<typeof SuccessPaymentModal> | null>(
   null
 );
-const ErrorModalRef = ref<InstanceType<typeof ErrorPaymentModal> | null>(null);
+const ErrorModalRef = ref<InstanceType<typeof ErrorModal> | null>(null);
 
 watch(
   () => globalStore.isLoading,
@@ -112,7 +112,7 @@ useInactivity(modalRef, isStandby);
     <VKeyboard />
     <LoaderModal ref="LoaderModalRef" />
     <SuccessPaymentModal ref="SuccessModalRef" />
-    <ErrorPaymentModal ref="ErrorModalRef" />
+    <ErrorModal ref="ErrorModalRef" />
     <Transition name="fade">
       <StandbyMode v-if="isStandby" />
     </Transition>

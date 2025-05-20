@@ -10,14 +10,11 @@ export const authById = async (form: AuthByIdForm): Promise<AuthResponse> => {
     ceid: form.ceid,
     birthday: form.birthday,
     phone: form.phone.replace(/\D/g, '').slice(-10),
-    operation_name: 'authorization',
   };
 
-  const response = await axiosInstance.get<AuthResponse>(
-    '/api2/api/v1/authorization',
-    {
-      params: payload,
-    }
+  const response = await axiosInstance.post<AuthResponse>(
+    '/api/eos/authorization',
+    payload
   );
 
   return response.data;
@@ -27,19 +24,16 @@ export const authByPersonal = async (
   form: AuthByPersonalForm
 ): Promise<AuthResponse> => {
   const payload: Record<string, string> = {
-    surname: form.surname,
-    name: form.name,
-    patronymic: form.patronymic,
+    p_surname: form.surname,
+    p_name: form.name,
+    p_patronymic: form.patronymic,
     birthday: form.birthday,
     phone: form.phone.replace(/\D/g, '').slice(-10),
-    operation_name: 'authorization',
   };
 
-  const response = await axiosInstance.get<AuthResponse>(
-    '/api2/api/v1/authorization',
-    {
-      params: payload,
-    }
+  const response = await axiosInstance.post<AuthResponse>(
+    '/api/eos/authorizationNa',
+    payload
   );
 
   return response.data;

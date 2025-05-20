@@ -6,6 +6,7 @@ import IconBack from '@/shared/assets/icons/IconArrowLeft.svg';
 import { VButton } from '@/shared/ui';
 import { sendSMS, checkSMS } from '@/features/SMSConfirmation/model';
 import { useAuthStore } from '@/features/AccountAuthorization/model/store';
+import { getUserInfo, getUserStatistics, getUserStock } from '@/entities/user';
 
 const props = defineProps<{
   phone: string;
@@ -18,7 +19,7 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const authStore = useAuthStore();
-const smsCode = ref(['', '', '', '', '', '']);
+const smsCode = ref(['', '', '', '']);
 const timer = ref(59);
 const isTimerActive = ref(true);
 const error = ref<string | null>(null);
@@ -75,16 +76,30 @@ const submitCode = async () => {
   try {
     const payload = {
       session_id: authStore.sessionId!,
-      operation_name: 'authorization_sms_check',
       token_sms: authStore.tokenSms!,
       text_sms: codeStr,
     };
+
     const response = await checkSMS(payload);
-    if (response.sms_check === 1) {
+
+    if (response.result.sms_check === 1) {
       error.value = null;
       document.dispatchEvent(new Event('hideNumpad'));
       authStore.isAuthenticated = true;
-      await router.push('/cabinet');
+
+      const userInfo = await getUserInfo();
+      const ceid = userInfo.result.ceid;
+
+      const [userStatistics, userStock] = await Promise.all([
+        getUserStatistics(ceid),
+        getUserStock(ceid),
+      ]);
+
+      authStore.setUserData(userInfo.result);
+      authStore.setUserStatistics(userStatistics.result);
+      authStore.setUserStock(userStock.result);
+
+      router.push('/cabinet');
     } else {
       error.value = 'Неверный код';
     }
@@ -99,7 +114,6 @@ const resendCode = async () => {
     try {
       const payload = {
         session_id: authStore.sessionId!,
-        operation_name: 'authorization_sms_send',
         token_sms: authStore.tokenSms!,
       };
       const response = await sendSMS(payload);

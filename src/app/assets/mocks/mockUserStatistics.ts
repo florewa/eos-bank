@@ -1,6 +1,5 @@
 export const mockUserStatistics = {
   session_id: 'mock-session-id',
-  operation_name: 'user_statistics',
   status: true,
   result: {
     debts: [

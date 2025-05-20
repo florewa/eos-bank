@@ -9,11 +9,9 @@ import { axiosInstance } from '@/shared/api';
 export const sendSMS = async (
   payload: SendSMSRequest
 ): Promise<SendSMSResponse> => {
-  const response = await axiosInstance.get<SendSMSResponse>(
-    '/authorization/sms/send',
-    {
-      params: payload,
-    }
+  const response = await axiosInstance.post<SendSMSResponse>(
+    '/api/eos/authorization/sms/send',
+    payload
   );
 
   return response.data;
@@ -22,11 +20,9 @@ export const sendSMS = async (
 export const checkSMS = async (
   payload: CheckSMSRequest
 ): Promise<CheckSMSResponse> => {
-  const response = await axiosInstance.get<CheckSMSResponse>(
-    '/authorization/sms/check',
-    {
-      params: payload,
-    }
+  const response = await axiosInstance.post<CheckSMSResponse>(
+    '/api/eos/authorization/sms/check',
+    payload
   );
 
   return response.data;

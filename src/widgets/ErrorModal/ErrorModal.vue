@@ -2,16 +2,17 @@
 import { ref, watch } from 'vue';
 import { VModal } from '@/shared/ui';
 import IconError from '@/shared/assets/icons/IconError.svg';
-import { useRouter } from 'vue-router';
+import IconX from '@/shared/assets/icons/IconX.svg';
+import { useRoute, useRouter } from 'vue-router';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 const router = useRouter();
+const route = useRoute();
 const globalStore = useGlobalStore();
 const isOpen = ref(false);
 const timer = ref(20);
 let interval: ReturnType<typeof setInterval> | null = null;
 
-// Следим за изменением globalStore.isError
 watch(
   () => globalStore.isError,
   (newValue) => {
@@ -52,7 +53,9 @@ const resetState = () => {
 const close = () => {
   resetState();
   globalStore.setIsError(false);
-  router.push('/pay-debt');
+  if (route.path.includes('payment')) {
+    router.push('/pay-debt');
+  }
 };
 
 defineExpose({ open, close });
@@ -60,21 +63,25 @@ defineExpose({ open, close });
 
 <template>
   <VModal :is-open="isOpen" @close="close">
-    <div class="modal-loader">
-      <div class="modal-loader__inner">
+    <div class="modal-error">
+      <div class="modal-error__inner">
         <IconError />
-        <h1 class="modal-loader__title">Произошла ошибка</h1>
-        <div class="modal-loader__text">
+        <h1 class="modal-error__title">Произошла ошибка</h1>
+        <div class="modal-error__text">
           Повторите операцию. <br />
           Окно закроется через <span>{{ timer }}</span> секунд
         </div>
+      </div>
+      <div class="modal-error__close-btn" @click="close">
+        <IconX />
       </div>
     </div>
   </VModal>
 </template>
 
 <style scoped lang="scss">
-.modal-loader {
+.modal-error {
+  position: relative;
   max-width: 660px;
 
   span {
@@ -95,6 +102,21 @@ defineExpose({ open, close });
       width: 120px;
       height: 120px;
       color: var(--red-accent);
+    }
+  }
+
+  &__close-btn {
+    position: absolute;
+    border-radius: 24px;
+    cursor: pointer;
+    top: -140px;
+    right: -40px;
+    padding: 20px;
+    background: var(--white);
+
+    svg {
+      width: 32px;
+      height: 32px;
     }
   }
 }

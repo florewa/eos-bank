@@ -1,6 +1,26 @@
 <script setup lang="ts">
 import IconPerson from '@/shared/assets/icons/IconPerson.svg';
 import IconPhone from '@/shared/assets/icons/IconPhone.svg';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
+
+const authStore = useAuthStore();
+
+function formatPhoneNumber(phone: string): string {
+  if (!/^\d+$/.test(phone)) {
+    return phone;
+  }
+
+  let cleanPhone = phone;
+  if (phone.startsWith('7') || phone.startsWith('8')) {
+    cleanPhone = phone.substring(1);
+  }
+
+  if (cleanPhone.length !== 10) {
+    return phone;
+  }
+
+  return `+7 (${cleanPhone.substring(0, 3)}) ${cleanPhone.substring(3, 6)}-${cleanPhone.substring(6, 8)}-${cleanPhone.substring(8, 10)}`;
+}
 </script>
 
 <template>
@@ -9,11 +29,11 @@ import IconPhone from '@/shared/assets/icons/IconPhone.svg';
       <div class="personal-info__title h1">Личные данные</div>
       <div class="personal-info__item text">
         <IconPerson />
-        Константинопольская Александра Александровна
+        {{ authStore.userData?.fio }}
       </div>
       <div class="personal-info__item text">
         <IconPhone />
-        +7 (912) 555-35-35
+        {{ formatPhoneNumber(authStore.userData?.phone || '') }}
       </div>
     </div>
   </section>
@@ -26,6 +46,7 @@ import IconPhone from '@/shared/assets/icons/IconPhone.svg';
     flex-direction: column;
     gap: 20px;
   }
+
   &__item {
     display: flex;
     gap: 15px;

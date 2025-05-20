@@ -4,29 +4,30 @@ import { ref, computed } from 'vue';
 import { ContractInfo, ContractInfoCabinet, DebtCabinetForm } from '@/features';
 import PersonalInfo from '@/pages/cabinet-page/ui/PersonalInfo/PersonalInfo.vue';
 import TotalDebt from '@/pages/cabinet-page/ui/TotalDebt/TotalDebt.vue';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
-import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
-import mockUserStock from '@/app/assets/mocks/mockContract.ts';
-
+const authStore = useAuthStore();
 const isPaymentScreen = ref(false);
 const selectedContractIndex = ref<number | null>(null);
 
-const debts = mockUserStatistics.result.debts;
+const debts = computed(() => authStore.userStatistics?.debts || []);
 
 const selectedContract = computed(() =>
   selectedContractIndex.value !== null
-    ? debts[selectedContractIndex.value]
+    ? debts.value[selectedContractIndex.value]
     : null
 );
 
-const selectedPromotions = computed(() =>
-  selectedContract.value
-    ? mockUserStock.filter(
-        (promo) =>
-          promo.contract_number === selectedContract.value.contract_number
-      )
-    : []
-);
+const selectedPromotions = computed(() => {
+  if (!selectedContract.value) return [];
+
+  return (
+    authStore.userStock?.filter(
+      (promo) =>
+        promo.contract_number === selectedContract.value.contract_number
+    ) || []
+  );
+});
 
 const showPaymentScreen = (index: number) => {
   selectedContractIndex.value = index;

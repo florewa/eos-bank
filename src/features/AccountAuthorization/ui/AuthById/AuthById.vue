@@ -10,6 +10,8 @@ import {
 } from '@/features/AccountAuthorization/model';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
 import { authByIdSchema } from '@/shared/validation/validationSchemas';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
+import { sendSMS } from '@/features/SMSConfirmation/model';
 
 defineProps<{
   openModal: () => void;
@@ -28,6 +30,7 @@ const form = ref<AuthByIdForm>({
 });
 const errors = ref<Record<string, string>>({});
 const authStore = useAuthStore();
+const globalStore = useGlobalStore();
 const isLoading = ref(false);
 
 const validateField = async (field: keyof AuthByIdForm, value: any) => {
@@ -80,6 +83,13 @@ const handleSubmit = async () => {
       alert('Доступ закрыт');
     } else if (response.result.auth_code === 1) {
       emit('login', form.value.phone);
+      const payload = {
+        session_id: authStore.sessionId!,
+        token_sms: authStore.tokenSms!,
+      };
+      await sendSMS(payload);
+    } else if (response.result.auth_code === 0) {
+      globalStore.setIsError(true);
     }
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
@@ -173,9 +183,9 @@ defineExpose({
         :error="errors.isAgreementAccepted"
       />
     </div>
-    <div class="account-authorization__form-error" v-if="authStore.error">
-      {{ authStore.error }}
-    </div>
+    <!--    <div class="account-authorization__form-error" v-if="authStore.error">-->
+    <!--      {{ authStore.error }}-->
+    <!--    </div>-->
     <div class="account-authorization__text">
       <p>8 (800) 555-17-10</p>
       Звонок по России бесплатный.
