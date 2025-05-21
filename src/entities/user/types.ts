@@ -58,3 +58,19 @@ export interface UserStockResponse {
   signature: string;
   error: string;
 }
+
+export interface UserInfo {
+  ceid: string;
+  fio: string;
+  birthday: string;
+  phone: string;
+  subscriber_id: string;
+}
+
+export interface UserInfoResponse {
+  session_id: string;
+  operation_name: string;
+  status: boolean;
+  result: UserInfo;
+  error: string;
+}

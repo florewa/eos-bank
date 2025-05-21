@@ -24,7 +24,7 @@ const selectedPromotions = computed(() => {
   return (
     authStore.userStock?.filter(
       (promo) =>
-        promo.contract_number === selectedContract.value.contract_number
+        promo.contract_number === selectedContract.value!.contract_number
     ) || []
   );
 });

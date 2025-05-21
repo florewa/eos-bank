@@ -50,14 +50,14 @@ watch(activeAuthMethod, (newMethod) => {
   }
 });
 
-watch(
-  () => authStore.isAuthenticated,
-  (isAuthenticated) => {
-    if (isAuthenticated) {
-      router.push('/cabinet');
-    }
-  }
-);
+// watch(
+//   () => authStore.isAuthenticated,
+//   (isAuthenticated) => {
+//     if (isAuthenticated) {
+//       router.push('/cabinet');
+//     }
+//   }
+// );
 </script>
 
 <template>

@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
-import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
 import IconPromotion from '@/shared/assets/icons/IconPromotion.svg';
 import { VButton } from '@/shared/ui';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
-const debts = mockUserStatistics.result.debts;
+const authStore = useAuthStore();
+
+const debts = computed(() => authStore.userStatistics?.debts || []);
 
 const selectedContract = ref<number | null>(null);
 
 const emit = defineEmits(['contract-selected', 'contract-deselected']);
+
+const contractPromotions = computed(() => {
+  return debts.value.map((contract) => {
+    return {
+      contract_number: contract.contract_number,
+      hasPromotions:
+        authStore.userStock?.some(
+          (promo) => promo.contract_number === contract.contract_number
+        ) || false,
+    };
+  });
+});
 
 const selectContract = (index: number) => {
   if (selectedContract.value === index) {
@@ -22,7 +36,7 @@ const selectContract = (index: number) => {
 };
 
 onMounted(() => {
-  if (debts.length > 0) {
+  if (debts.value.length > 0) {
     selectedContract.value = 0;
     emit('contract-selected', 0);
   }
@@ -43,7 +57,7 @@ onMounted(() => {
             :class="{ fw700: selectedContract === index }"
           >
             Договор <span>№{{ contract.contract_number }}</span>
-            <IconPromotion v-if="contract.hasPromotions" />
+            <IconPromotion v-if="contractPromotions[index]?.hasPromotions" />
           </div>
           <div class="select-contract__list-item__action">
             <VButton

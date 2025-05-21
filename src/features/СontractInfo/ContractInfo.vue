@@ -6,10 +6,11 @@ import IconInfo from '@/shared/assets/icons/IconInfo2.svg';
 import { VButton } from '@/shared/ui';
 import { PromotionsModal } from '@/widgets';
 
-import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
 import mockUserStock from '@/app/assets/mocks/mockContract.ts';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
-const debts = mockUserStatistics.result.debts;
+const authStore = useAuthStore();
+const debts = computed(() => authStore.userStatistics?.debts || []);
 
 const isContractSelected = ref(false);
 const selectedContractIndex = ref<number | null>(null);
@@ -28,18 +29,19 @@ const handleContractDeselected = () => {
 
 const selectedContract = computed(() =>
   selectedContractIndex.value !== null
-    ? debts[selectedContractIndex.value]
+    ? debts.value[selectedContractIndex.value]
     : null
 );
 
-const promotions = computed(() =>
-  selectedContract.value
-    ? mockUserStock.filter(
-        (promo) =>
-          promo.contract_number === selectedContract.value.contract_number
-      )
-    : []
-);
+const promotions = computed(() => {
+  if (!selectedContract.value) return [];
+  return (
+    authStore.userStock?.filter(
+      (promo) =>
+        promo.contract_number === selectedContract.value!.contract_number
+    ) || []
+  );
+});
 
 const PromotionsModalRef = ref<InstanceType<typeof PromotionsModal> | null>(
   null

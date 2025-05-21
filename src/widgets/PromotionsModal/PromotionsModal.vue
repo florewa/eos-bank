@@ -2,14 +2,14 @@
 import { ref } from 'vue';
 import { type PropType } from 'vue';
 
-import { type Promotion } from '@/app/assets/mocks/mockContract.ts';
 import { VButton, VModal } from '@/shared/ui';
+import type { UserStockItem } from '@/entities/user';
 
 const isOpen = ref(false);
 
 const props = defineProps({
   promotions: {
-    type: Array as PropType<Promotion[]>,
+    type: Array as PropType<UserStockItem[]>,
     default: () => [],
   },
 });
@@ -37,17 +37,20 @@ defineExpose({ open });
             class="promotion-modal__list-item"
           >
             <div class="promotion-modal__column">
-              <div class="promotion-modal__item-title">{{ promo.title }}</div>
+              <div class="promotion-modal__item-title">
+                {{ promo.discount_type_name }}
+              </div>
               <div class="promotion-modal__item-contract">
-                По договору: <span>{{ promo.contractNumber }}</span>
+                По договору: <span>{{ promo.contract_number }}</span>
               </div>
               <div class="promotion-modal__item-text">
-                Срок действия: {{ promo.validity }}
+                Срок действия: {{ promo.start_discount_date }} -
+                {{ promo.end_discount_date }}
               </div>
             </div>
             <div class="promotion-modal__column">
               <div class="promotion-modal__item-discount">
-                Скидка {{ promo.discount }}
+                Скидка {{ promo.discount }} или {{ promo.discount_prc }}
               </div>
             </div>
           </div>

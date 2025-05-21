@@ -1,6 +1,11 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { AuthResponse } from '@/features/AccountAuthorization/model/types.ts';
+import type {
+  UserInfoResponse,
+  UserStatisticsResponse,
+  UserStockResponse,
+} from '@/entities/user';
 
 export const useAuthStore = defineStore('auth', () => {
   const sessionId = ref<string | null>(null);
@@ -8,9 +13,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const error = ref<string | null>(null);
 
-  const userData = ref(null);
-  const userStatistics = ref(null);
-  const userStock = ref(null);
+  const userData = ref<UserInfoResponse['result'] | null>(null);
+  const userStatistics = ref<UserStatisticsResponse['result'] | null>(null);
+  const userStock = ref<UserStockResponse['result'] | null>(null);
 
   const setAuthData = (response: AuthResponse) => {
     sessionId.value = response.session_id;
@@ -27,16 +32,24 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true;
   };
 
-  const setUserData = (data) => {
+  const setUserData = (data: UserInfoResponse['result']) => {
     userData.value = data;
   };
 
-  const setUserStatistics = (data) => {
+  const setUserStatistics = (data: UserStatisticsResponse['result']) => {
     userStatistics.value = data;
   };
 
-  const setUserStock = (data) => {
+  const setUserStock = (data: UserStockResponse['result']) => {
     userStock.value = data;
+  };
+
+  const isUserDataComplete = () => {
+    return (
+      userData.value !== null &&
+      userStatistics.value !== null &&
+      userStock.value !== null
+    );
   };
 
   const clearAuthData = () => {
@@ -64,6 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
     setUserData,
     setUserStatistics,
     setUserStock,
+    isUserDataComplete,
     clearAuthData,
   };
 });

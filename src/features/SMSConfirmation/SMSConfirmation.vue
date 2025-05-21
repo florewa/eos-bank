@@ -23,6 +23,7 @@ const smsCode = ref(['', '', '', '']);
 const timer = ref(59);
 const isTimerActive = ref(true);
 const error = ref<string | null>(null);
+const isLoading = ref(false);
 
 const numpadMethods = ref<
   { setActiveInput: (input: HTMLInputElement | null) => void } | undefined
@@ -108,7 +109,6 @@ const submitCode = async () => {
     error.value = 'Ошибка при проверке кода';
   }
 };
-
 const resendCode = async () => {
   if (!isTimerActive.value) {
     try {

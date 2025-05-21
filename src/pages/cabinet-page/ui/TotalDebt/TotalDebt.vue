@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-
-import mockUserStatistics from '@/app/assets/mocks/mockUserStatistics.ts';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const isBlurred = ref(true);
 
@@ -9,13 +8,14 @@ const toggleBlur = () => {
   isBlurred.value = !isBlurred.value;
 };
 
-const debts = mockUserStatistics.result.debts;
+const authStore = useAuthStore();
+const debts = computed(() => authStore.userStatistics?.debts || []);
 
-const totalContracts = computed(() => debts.length);
+const totalContracts = computed(() => debts.value.length);
 
 const totalDebt = computed(() => {
   return (
-    debts
+    debts.value
       .reduce((sum, debt) => {
         const amount = parseFloat(
           debt.debt_fnc_amount.replace(/\s/g, '').replace(',', '.')

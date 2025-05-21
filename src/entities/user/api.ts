@@ -1,18 +1,19 @@
 import { axiosInstance } from '@/shared/api';
 import { useAuthStore } from '@/features/AccountAuthorization/model';
 import type {
+  UserInfoResponse,
   UserStatisticsResponse,
   UserStockResponse,
 } from '@/entities/user/types.ts';
 
 const authStore = useAuthStore();
 
-export const getUserInfo = async (): Promise<UserStatisticsResponse> => {
-  const payload: Record<string, string> = {
+export const getUserInfo = async (): Promise<UserInfoResponse> => {
+  const payload = {
     session_id: authStore.sessionId as string,
   };
 
-  const response = await axiosInstance.post<UserStatisticsResponse>(
+  const response = await axiosInstance.post<UserInfoResponse>(
     '/api/eos/user',
     payload
   );
