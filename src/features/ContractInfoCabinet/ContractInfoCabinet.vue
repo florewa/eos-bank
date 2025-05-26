@@ -49,32 +49,32 @@ const hidePaymentScreen = () => {
             Остаток задолженности: <span>{{ contract?.debt_fnc_balance }}</span>
           </div>
         </div>
-        <div v-if="promotions.length" class="pay-debt__promotions">
-          <div class="pay-debt__title h1">Доступные акции</div>
-          <div
-            v-for="promo in promotions"
-            :key="promo.discount_jnl_id"
-            class="pay-debt__promotion"
-          >
-            <div>
-              <b>{{ promo.discount_name }}</b>
-              <span v-if="promo.discount_prc">({{ promo.discount_prc }})</span>
-            </div>
-            <div>
-              Скидка: <b>{{ promo.discount }}</b>
-            </div>
-            <div>
-              Период:
-              <b
-                >{{ promo.start_discount_date }} —
-                {{ promo.end_discount_date }}</b
-              >
-            </div>
-            <div>
-              Промокод: <b>{{ promo.promo }}</b>
-            </div>
-          </div>
-        </div>
+        <!--        <div v-if="promotions.length" class="pay-debt__promotions">-->
+        <!--          <div class="pay-debt__title h1">Доступные акции</div>-->
+        <!--          <div-->
+        <!--            v-for="promo in promotions"-->
+        <!--            :key="promo.discount_jnl_id"-->
+        <!--            class="pay-debt__promotion"-->
+        <!--          >-->
+        <!--            <div>-->
+        <!--              <b>{{ promo.discount_name }}</b>-->
+        <!--              <span v-if="promo.discount_prc">({{ promo.discount_prc }})</span>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--              Скидка: <b>{{ promo.discount }}</b>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--              Период:-->
+        <!--              <b-->
+        <!--                >{{ promo.start_discount_date }} —-->
+        <!--                {{ promo.end_discount_date }}</b-->
+        <!--              >-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--              Промокод: <b>{{ promo.promo }}</b>-->
+        <!--            </div>-->
+        <!--          </div>-->
+        <!--        </div>-->
       </div>
     </div>
   </section>
