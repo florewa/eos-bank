@@ -6,7 +6,6 @@ import IconInfo from '@/shared/assets/icons/IconInfo2.svg';
 import { VButton } from '@/shared/ui';
 import { PromotionsModal } from '@/widgets';
 
-import mockUserStock from '@/app/assets/mocks/mockContract.ts';
 import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const authStore = useAuthStore();

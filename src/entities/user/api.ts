@@ -15,7 +15,8 @@ export const getUserInfo = async (): Promise<UserInfoResponse> => {
 
   const response = await axiosInstance.post<UserInfoResponse>(
     '/api/eos/user',
-    payload
+    payload,
+    { skipGlobalLoader: true }
   );
 
   return response.data;
@@ -31,7 +32,8 @@ export const getUserStatistics = async (
 
   const response = await axiosInstance.post<UserStatisticsResponse>(
     '/api/eos/user/statistics',
-    payload
+    payload,
+    { skipGlobalLoader: true }
   );
 
   return response.data;
@@ -47,7 +49,8 @@ export const getUserStock = async (
 
   const response = await axiosInstance.post<UserStockResponse>(
     '/api/eos/user/stock',
-    payload
+    payload,
+    { skipGlobalLoader: true }
   );
 
   return response.data;

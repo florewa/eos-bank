@@ -11,7 +11,8 @@ export const sendSMS = async (
 ): Promise<SendSMSResponse> => {
   const response = await axiosInstance.post<SendSMSResponse>(
     '/api/eos/authorization/sms/send',
-    payload
+    payload,
+    { skipGlobalLoader: true }
   );
 
   return response.data;
@@ -22,7 +23,8 @@ export const checkSMS = async (
 ): Promise<CheckSMSResponse> => {
   const response = await axiosInstance.post<CheckSMSResponse>(
     '/api/eos/authorization/sms/check',
-    payload
+    payload,
+    { skipGlobalLoader: true }
   );
 
   return response.data;

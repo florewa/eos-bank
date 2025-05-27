@@ -8,6 +8,12 @@ if (!API_URL) {
   console.error('VITE_API_URL is not defined in .env file');
 }
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipGlobalLoader?: boolean;
+  }
+}
+
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -24,26 +30,34 @@ export const paymentApi = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const globalStore = useGlobalStore();
-    globalStore.setIsLoading(true);
+    if (!config.skipGlobalLoader) {
+      const globalStore = useGlobalStore();
+      globalStore.setIsLoading(true);
+    }
     return config;
   },
   (error) => {
-    const globalStore = useGlobalStore();
-    globalStore.setIsLoading(false);
+    if (!error.config?.skipGlobalLoader) {
+      const globalStore = useGlobalStore();
+      globalStore.setIsLoading(false);
+    }
     return Promise.reject(error);
   }
 );
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    const globalStore = useGlobalStore();
-    globalStore.setIsLoading(false);
+    if (!response.config.skipGlobalLoader) {
+      const globalStore = useGlobalStore();
+      globalStore.setIsLoading(false);
+    }
     return response;
   },
   (error) => {
-    const globalStore = useGlobalStore();
-    globalStore.setIsLoading(false);
+    if (!error.config?.skipGlobalLoader) {
+      const globalStore = useGlobalStore();
+      globalStore.setIsLoading(false);
+    }
 
     if (axios.isAxiosError(error)) {
       console.error(

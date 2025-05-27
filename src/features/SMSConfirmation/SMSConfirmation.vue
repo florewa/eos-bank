@@ -7,6 +7,7 @@ import { VButton } from '@/shared/ui';
 import { sendSMS, checkSMS } from '@/features/SMSConfirmation/model';
 import { useAuthStore } from '@/features/AccountAuthorization/model/store';
 import { getUserInfo, getUserStatistics, getUserStock } from '@/entities/user';
+import { useGlobalStore } from '@/shared/store/globalStore.ts';
 
 const props = defineProps<{
   phone: string;
@@ -16,6 +17,8 @@ const emit = defineEmits<{
   (e: 'back'): void;
   (e: 'resend'): void;
 }>();
+
+const globalStore = useGlobalStore();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -88,6 +91,7 @@ const submitCode = async () => {
       document.dispatchEvent(new Event('hideNumpad'));
       authStore.isAuthenticated = true;
 
+      globalStore.setIsLoading(true);
       const userInfo = await getUserInfo();
       const ceid = userInfo.result.ceid;
 
@@ -99,6 +103,8 @@ const submitCode = async () => {
       authStore.setUserData(userInfo.result);
       authStore.setUserStatistics(userStatistics.result);
       authStore.setUserStock(userStock.result);
+
+      globalStore.setIsLoading(false);
 
       router.push('/cabinet');
     } else {

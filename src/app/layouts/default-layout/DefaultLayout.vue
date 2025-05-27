@@ -73,7 +73,7 @@ const exitStandby = () => {
 
 const qrImage = ref('');
 const sbpUrl =
-  'https://qr.nspk.ru/AD20006QUJV3L4IP9TJ851N5D46CNKFE?type=02&bank=100000000004&sum=70000&cur=RUB&crc=B197#';
+  'https://qr.nspk.ru/BD20001KFVL3DTB188K8MHAE2JQ5L627?type=02&bank=100000000004&sum=12300&cur=RUB&crc=82B1';
 
 import QRCode from 'qrcode';
 import { useSessionStore } from '@/shared/store/sessionStore.ts';

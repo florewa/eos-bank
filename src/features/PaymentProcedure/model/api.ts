@@ -19,10 +19,9 @@ export interface PaymentQrResponse {
 
 export interface GetPaymentQrParams {
   ceid: string;
-  amount: number; // Сумма в копейках или рублях? В примере 70000, похоже на копейки для 700.00. Уточните!
-  // Если это рубли, то amount: number. Если копейки, то тоже number. API ожидает строку.
-  typePlatform?: string; // Необязательный параметр
-  ya_client_id?: string; // Необязательный параметр
+  amount: number;
+  typePlatform?: string;
+  ya_client_id?: string;
 }
 
 interface PaymentQrApiPayload {
@@ -56,12 +55,9 @@ export async function paymentEvent(paymentData: PaymentItem[]) {
 export async function checkClient(ceid: string): Promise<boolean> {
   try {
     const response = await axiosInstance.post<{ status: boolean }>(
-      '/ceid_info',
-      undefined,
+      '/api/eos/checksId',
       {
-        params: {
-          ceid: ceid,
-        },
+        ceid: ceid,
       }
     );
     return response.data.status;
@@ -113,11 +109,15 @@ export async function getPaymentQr(
   }
 
   try {
-    const response = await paymentApi.post<PaymentQrResponse>('/sbp', payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axiosInstance.post<PaymentQrResponse>(
+      '/api/eos/paymentSBP',
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to get QR-code`, error);
