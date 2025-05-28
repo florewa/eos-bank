@@ -23,8 +23,7 @@ export const checkSMS = async (
 ): Promise<CheckSMSResponse> => {
   const response = await axiosInstance.post<CheckSMSResponse>(
     '/api/eos/authorization/sms/check',
-    payload,
-    { skipGlobalLoader: true }
+    payload
   );
 
   return response.data;

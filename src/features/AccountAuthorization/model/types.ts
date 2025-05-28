@@ -26,3 +26,9 @@ export interface AuthResponse {
   signature: string; // Подпись в HEX
   error: string; // Статус ошибки
 }
+
+export interface LoginPayload {
+  phone: string;
+  method: 'id' | 'personal';
+  data: AuthByIdForm | AuthByPersonalForm;
+}

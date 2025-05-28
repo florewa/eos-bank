@@ -3,14 +3,16 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { AuthById, AuthByPersonal } from '@/features/AccountAuthorization';
-import { useAuthStore } from '@/features/AccountAuthorization/model';
+import {
+  type LoginPayload,
+  useAuthStore,
+} from '@/features/AccountAuthorization/model';
 import { IDModal, AgreementsModal, PolicyModal } from '@/widgets';
 
 defineEmits<{
-  (e: 'login', phone: string): void;
+  (e: 'login', payload: LoginPayload): void;
 }>();
 
-const router = useRouter();
 const authStore = useAuthStore();
 const IDModalRef = ref<InstanceType<typeof IDModal> | null>(null);
 const agreementsModalRef = ref<InstanceType<typeof AgreementsModal> | null>(
@@ -49,15 +51,6 @@ watch(activeAuthMethod, (newMethod) => {
     authStore.error = null;
   }
 });
-
-// watch(
-//   () => authStore.isAuthenticated,
-//   (isAuthenticated) => {
-//     if (isAuthenticated) {
-//       router.push('/cabinet');
-//     }
-//   }
-// );
 </script>
 
 <template>

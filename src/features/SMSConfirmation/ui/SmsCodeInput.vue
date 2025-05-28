@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 
 const props = defineProps<{
   code: string[];
@@ -57,6 +57,10 @@ const handleKeydown = (index: number, event: KeyboardEvent) => {
     }
   }
 };
+
+onMounted(() => {
+  console.log('error prop:', props.error);
+});
 </script>
 
 <template>

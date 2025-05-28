@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import SmsCodeInput from '@/features/SMSConfirmation/ui/SmsCodeInput.vue';
 import IconBack from '@/shared/assets/icons/IconArrowLeft.svg';
 import { VButton } from '@/shared/ui';
@@ -8,9 +7,16 @@ import { sendSMS, checkSMS } from '@/features/SMSConfirmation/model';
 import { useAuthStore } from '@/features/AccountAuthorization/model/store';
 import { getUserInfo, getUserStatistics, getUserStock } from '@/entities/user';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
+import { useRouter } from 'vue-router';
+import {
+  authById,
+  authByPersonal,
+} from '@/features/AccountAuthorization/model';
 
 const props = defineProps<{
   phone: string;
+  authMethod: 'id' | 'personal';
+  authData: any;
 }>();
 
 const emit = defineEmits<{
@@ -26,7 +32,6 @@ const smsCode = ref(['', '', '', '']);
 const timer = ref(59);
 const isTimerActive = ref(true);
 const error = ref<string | null>(null);
-const isLoading = ref(false);
 
 const numpadMethods = ref<
   { setActiveInput: (input: HTMLInputElement | null) => void } | undefined
@@ -72,6 +77,8 @@ onUnmounted(() => {
 
 const toBack = () => {
   document.dispatchEvent(new Event('hideNumpad'));
+  smsCode.value = ['', '', '', ''];
+  error.value = null;
   emit('back');
 };
 
@@ -115,32 +122,52 @@ const submitCode = async () => {
     error.value = 'Ошибка при проверке кода';
   }
 };
+
 const resendCode = async () => {
   if (!isTimerActive.value) {
     try {
+      let response;
+      if (props.authMethod === 'id') {
+        response = await authById(props.authData);
+      } else if (props.authMethod === 'personal') {
+        response = await authByPersonal(props.authData);
+      }
+      if (!response || response.result.auth_code !== 1) {
+        error.value = 'Ошибка авторизации';
+        return;
+      }
+      authStore.setAuthData(response);
       const payload = {
         session_id: authStore.sessionId!,
         token_sms: authStore.tokenSms!,
       };
-      const response = await sendSMS(payload);
-      if (response.sms_status === 1) {
+      const smsResp = await sendSMS(payload);
+      if (smsResp.result.sms_status === 1) {
         timer.value = 59;
         isTimerActive.value = true;
         startTimer();
-        smsCode.value = ['', '', '', '', '', ''];
+        smsCode.value = ['', '', '', ''];
         error.value = null;
       } else {
         error.value = 'Ошибка при отправке SMS';
       }
     } catch (err) {
-      console.error('Ошибка при отправке SMS:', err);
       error.value = 'Ошибка при отправке SMS';
     }
   }
 };
 
+watch(smsCode, () => {
+  error.value = null;
+});
+
 defineExpose({
   setNumpadMethods,
+  reset: () => {
+    smsCode.value = ['', '', '', ''];
+    error.value = null;
+    timer.value = 59;
+  },
 });
 </script>
 
@@ -162,6 +189,7 @@ defineExpose({
         @submit="submitCode"
         :numpad-methods="numpadMethods"
         :error="error"
+        :key="error + smsCode.join('')"
       />
       <div class="sms-code__repeat-action">
         <span v-if="isTimerActive">

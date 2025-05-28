@@ -6,6 +6,7 @@ import { AGREEMENT_TEXT } from '@/features/AccountAuthorization/constants';
 import {
   authById,
   type AuthByIdForm,
+  type LoginPayload,
   useAuthStore,
 } from '@/features/AccountAuthorization/model';
 import { VButton, VCheckbox, VInput } from '@/shared/ui';
@@ -19,7 +20,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'open-agreements-modal', spanText: string): void;
-  (e: 'login', phone: string): void;
+  (e: 'login', payload: LoginPayload): void;
 }>();
 
 const form = ref<AuthByIdForm>({
@@ -82,7 +83,11 @@ const handleSubmit = async () => {
     if (response.result.auth_code === 2) {
       alert('Доступ закрыт');
     } else if (response.result.auth_code === 1) {
-      emit('login', form.value.phone);
+      emit('login', {
+        phone: form.value.phone,
+        method: 'id',
+        data: { ...form.value },
+      });
       const payload = {
         session_id: authStore.sessionId!,
         token_sms: authStore.tokenSms!,

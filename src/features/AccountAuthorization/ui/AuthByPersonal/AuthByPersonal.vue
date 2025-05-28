@@ -7,6 +7,7 @@ import { VButton, VCheckbox, VInput } from '@/shared/ui';
 import {
   authByPersonal,
   type AuthByPersonalForm,
+  type LoginPayload,
   useAuthStore,
 } from '@/features/AccountAuthorization/model';
 
@@ -16,7 +17,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'open-agreements-modal', spanText: string): void;
-  (e: 'login', phone: string): void;
+  (e: 'login', payload: LoginPayload): void;
 }>();
 
 const form = ref<AuthByPersonalForm>({
@@ -79,7 +80,11 @@ const handleSubmit = async () => {
     if (response.result.auth_code === 2) {
       alert('Доступ закрыт');
     } else if (response.result.auth_code === 1) {
-      emit('login', form.value.phone);
+      emit('login', {
+        phone: form.value.phone,
+        method: 'personal',
+        data: { ...form.value },
+      });
     }
   } catch (err) {
     if (err instanceof Yup.ValidationError) {

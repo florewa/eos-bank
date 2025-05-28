@@ -240,6 +240,7 @@ onUnmounted(() => {
     justify-content: space-between;
 
     &-item {
+      user-select: none;
       cursor: pointer;
       display: flex;
       align-items: center;
