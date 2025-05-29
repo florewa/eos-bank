@@ -16,8 +16,18 @@ const router = useRouter();
 const selectedPaymentMethod = ref<'card' | 'sbp' | null>(null);
 const paymentData = ref<{ id: string; sum: string } | null>(null);
 
+const showMethodError = ref(false);
+
+const showTemporaryError = () => {
+  showMethodError.value = true;
+  setTimeout(() => {
+    showMethodError.value = false;
+  }, 3000);
+};
+
 const selectMethodAndAllowSubmit = (method: 'card' | 'sbp') => {
   selectedPaymentMethod.value = method;
+  handleSubmit();
 };
 
 const payDebtSchema = Yup.object({
@@ -79,7 +89,7 @@ const handleSubmit = async () => {
     errors.value = {};
 
     if (!selectedPaymentMethod.value) {
-      errors.value['method'] = 'Пожалуйста, выберите способ оплаты.';
+      showTemporaryError();
       return;
     }
 
@@ -195,6 +205,9 @@ const isFormValid = computed(() => {
         <div v-if="errors.method" class="pay-debt__form-error-message">
           {{ errors.method }}
         </div>
+        <div v-if="showMethodError" class="pay-debt__form-error-message">
+          Пожалуйста, выберите способ оплаты
+        </div>
       </form>
       <IDModal ref="IDModalRef" />
     </div>
@@ -264,10 +277,12 @@ const isFormValid = computed(() => {
 
     &-error-message {
       grid-column: 1 / -1;
-      color: var(--red-primary, #d32f2f);
-      margin-top: 15px;
       text-align: center;
-      font-weight: 500;
+      margin-top: 25px;
+      font-weight: 600;
+      font-size: 16px;
+      display: block;
+      color: var(--system-colors-error);
     }
   }
 
