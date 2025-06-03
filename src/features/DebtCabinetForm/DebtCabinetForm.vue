@@ -17,6 +17,14 @@ const router = useRouter();
 const selectedPaymentMethod = ref<'card' | 'sbp' | null>(null);
 const paymentData = ref<{ sum: string } | null>(null);
 const authStore = useAuthStore();
+const showMethodError = ref(false);
+
+const showTemporaryError = () => {
+  showMethodError.value = true;
+  setTimeout(() => {
+    showMethodError.value = false;
+  }, 3000);
+};
 
 const selectMethodAndAllowSubmit = (method: 'card' | 'sbp') => {
   selectedPaymentMethod.value = method;
@@ -65,7 +73,7 @@ const handleSubmit = async () => {
     errors.value = {};
 
     if (!selectedPaymentMethod.value) {
-      errors.value['method'] = 'Пожалуйста, выберите способ оплаты.';
+      showTemporaryError();
       return;
     }
 
@@ -82,6 +90,7 @@ const handleSubmit = async () => {
         method: selectedPaymentMethod.value,
         amount: sum.value,
         clientId: authStore!.userData!.ceid!,
+        from: 'cabinet',
       },
     });
 
@@ -162,6 +171,9 @@ const isFormValid = computed(() => {
             <img :src="IconSBP" alt="" />
           </VButton>
         </div>
+        <div v-if="showMethodError" class="debt-form__form-error-message">
+          Пожалуйста, выберите способ оплаты
+        </div>
       </form>
     </div>
   </section>
@@ -208,10 +220,12 @@ const isFormValid = computed(() => {
     }
 
     &-error-message {
-      color: var(--red-primary, #d32f2f);
-      margin-top: 15px;
+      font-weight: 600;
+      font-size: 16px;
+      display: block;
+      color: var(--system-colors-error);
+      margin-top: 10px;
       text-align: center;
-      font-weight: 500;
     }
   }
 

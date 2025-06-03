@@ -16,12 +16,14 @@ import {
   changeKKTStatus,
   getPaymentQr,
   type GetPaymentQrParams,
+  sendPaymentConfirmation,
 } from '@/features/PaymentProcedure/model/api.ts';
 
 const props = defineProps<{
   clientId: string;
   amount: string;
   method: 'card' | 'sbp' | null;
+  from?: string;
 }>();
 
 const globalStore = useGlobalStore();
@@ -35,7 +37,11 @@ const sbpLoading = ref<boolean>(false);
 const qrImage = ref<string | null>(null);
 
 const goBack = () => {
-  if (props.method || props.clientId) {
+  const fromCabinet = router.currentRoute.value.query.from === 'cabinet';
+
+  if (fromCabinet) {
+    router.push('/cabinet');
+  } else if (props.method || props.clientId || !props.from) {
     router.push('/pay-debt');
   } else {
     router.push('/');
@@ -65,6 +71,19 @@ const handleCardPayment = async (clientId: string, amountNumber: number) => {
         } catch (statusError) {
           console.error('Ошибка при вызове changePaperStatus:', statusError);
         }
+      }
+
+      try {
+        const terminalID = window.TERMINAL_ID;
+        await sendPaymentConfirmation({
+          terminalId: terminalID,
+          ceid: clientId,
+          price: amountNumber,
+        });
+
+        console.log('Платеж успешно подтвержден на бэкенде');
+      } catch (confirmationError) {
+        console.error('Ошибка при подтверждении платежа:', confirmationError);
       }
     } else {
       paymentError.value = `Платеж не удался (API: ${response.result}). Детали: ${response.description}`;
@@ -281,13 +300,18 @@ const displayImage = computed(() => {
               class="payment-procedure__loader-img"
             />
           </div>
-          <img
+          <div
             v-else-if="displayImage"
-            :src="displayImage"
-            alt="payment visualization"
-            width="400"
-            height="400"
-          />
+            style="background-color: #faf5f7; border-radius: 30px; width: 400px"
+          >
+            <img
+              :src="displayImage"
+              alt="payment visualization"
+              style="mix-blend-mode: multiply"
+              width="400"
+              height="400"
+            />
+          </div>
         </div>
       </div>
     </div>

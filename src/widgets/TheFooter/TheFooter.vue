@@ -8,9 +8,12 @@ import IconQuit from '@/shared/assets/icons/IconQuit.svg';
 import { sendMetrikaGoal } from '@/shared/lib/metrika/sendMetrikaGoal.ts';
 import { VButton } from '@/shared/ui';
 import { AboutModal, HelpModal } from '@/widgets';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const route = useRoute();
 const router = useRouter();
+
+const authStore = useAuthStore();
 
 const helpModalRef = ref<InstanceType<typeof HelpModal> | null>(null);
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
@@ -19,6 +22,7 @@ const isHome = computed(() => route.path === '/');
 
 const goHome = () => {
   sendMetrikaGoal('go-main-from-footer');
+  authStore.clearAuthData();
   router.push('/');
 };
 

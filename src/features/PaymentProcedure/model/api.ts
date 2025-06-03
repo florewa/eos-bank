@@ -24,14 +24,22 @@ export interface GetPaymentQrParams {
   ya_client_id?: string;
 }
 
-interface PaymentQrApiPayload {
+export interface PaymentQrApiPayload {
   ceid: string;
   amount: string;
   typePlatform?: string;
   ya_client_id?: string;
 }
 
-const TERMINAL_ID = window.TERMINAL_ID;
+export interface SuccessfulPayment {
+  ceid: string;
+  terminalId: number;
+  price: number;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+}
 
 export async function paymentEvent(paymentData: PaymentItem[]) {
   try {
@@ -45,9 +53,8 @@ export async function paymentEvent(paymentData: PaymentItem[]) {
     });
     return response.data;
   } catch (error) {
-    console.error('Payment event API call failed:', error);
     throw new Error(
-      `Failed to process payment: ${error instanceof Error ? error.message : String(error)}`
+      `Payment event failed: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -56,41 +63,26 @@ export async function checkClient(ceid: string): Promise<boolean> {
   try {
     const response = await axiosInstance.post<{ status: boolean }>(
       '/api/eos/checksId',
-      {
-        ceid: ceid,
-      }
+      { ceid }
     );
     return response.data.status;
   } catch (error) {
-    console.error(`Failed to check client with CEID ${ceid}:`, error);
     throw new Error(
-      `Failed to check client status for CEID ${ceid}: ${error instanceof Error ? error.message : String(error)}`
+      `Client check failed for CEID ${ceid}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
 
 export async function changeKKTStatus(id: number): Promise<boolean> {
   try {
-    const payload = {
-      id: id,
-      kkt: false,
-    };
-
     const response = await axiosInstance.post<{
       status: string;
       details: string;
-    }>('/api/terminals/edit', payload);
-
+    }>('/api/terminals/edit', { id, kkt: false });
     return response.data.status === 'success';
   } catch (error) {
-    console.error(
-      `Failed to change paper status for terminal ID ${id}:`,
-      error
-    );
     throw new Error(
-      `Failed to change paper status for terminal ID ${id}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `KKT status update failed for terminal ${id}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -98,33 +90,40 @@ export async function changeKKTStatus(id: number): Promise<boolean> {
 export async function getPaymentQr(
   params: GetPaymentQrParams
 ): Promise<PaymentQrResponse> {
-  const payload: PaymentQrApiPayload = {
-    ceid: params.ceid,
-    amount: String(params.amount),
-    typePlatform: 'terminal',
-  };
-
-  if (params.ya_client_id !== undefined) {
-    payload.ya_client_id = params.ya_client_id;
-  }
-
   try {
+    const payload: PaymentQrApiPayload = {
+      ceid: params.ceid,
+      amount: String(params.amount),
+      typePlatform: params.typePlatform || 'terminal',
+      ...(params.ya_client_id && { ya_client_id: params.ya_client_id }),
+    };
+
     const response = await axiosInstance.post<PaymentQrResponse>(
       '/api/eos/paymentSBP',
       payload,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { headers: { 'Content-Type': 'application/json' } }
     );
     return response.data;
   } catch (error) {
-    console.error(`Failed to get QR-code`, error);
     throw new Error(
-      `Failed to get QR-code ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `QR-code generation failed: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+export async function sendPaymentConfirmation(
+  params: SuccessfulPayment
+): Promise<PaymentResponse> {
+  try {
+    const response = await axiosInstance.post<PaymentResponse>(
+      '/api/payments',
+      params,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      `Payment confirmation failed: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }

@@ -5,10 +5,12 @@ import IconError from '@/shared/assets/icons/IconError.svg';
 import IconX from '@/shared/assets/icons/IconX.svg';
 import { useRoute, useRouter } from 'vue-router';
 import { useGlobalStore } from '@/shared/store/globalStore.ts';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
 
 const router = useRouter();
 const route = useRoute();
 const globalStore = useGlobalStore();
+const authStore = useAuthStore();
 const isOpen = ref(false);
 const timer = ref(20);
 let interval: ReturnType<typeof setInterval> | null = null;
@@ -53,8 +55,17 @@ const resetState = () => {
 const close = () => {
   resetState();
   globalStore.setIsError(false);
+
   if (route.path.includes('payment')) {
-    router.push('/pay-debt');
+    const fromCabinet = route.query.from === 'cabinet';
+
+    if (fromCabinet) {
+      router.push('/cabinet');
+    } else if (authStore.isAuthenticated) {
+      router.push('/cabinet');
+    } else {
+      router.push('/pay-debt');
+    }
   }
 };
 

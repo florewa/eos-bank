@@ -53,6 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const clearAuthData = () => {
+    console.log('Authorization data is cleaned');
     sessionId.value = null;
     tokenSms.value = null;
     isAuthenticated.value = false;

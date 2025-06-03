@@ -71,20 +71,7 @@ const exitStandby = () => {
   }
 };
 
-const qrImage = ref('');
-const sbpUrl =
-  'https://qr.nspk.ru/BD20001KFVL3DTB188K8MHAE2JQ5L627?type=02&bank=100000000004&sum=12300&cur=RUB&crc=82B1';
-
-import QRCode from 'qrcode';
 import { useSessionStore } from '@/shared/store/sessionStore.ts';
-
-onMounted(() => {
-  QRCode.toDataURL(sbpUrl, { width: 400 }, (err, url) => {
-    if (!err) {
-      qrImage.value = url;
-    }
-  });
-});
 
 onMounted(() => {
   window.addEventListener('touchstart', exitStandby);

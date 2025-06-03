@@ -4,11 +4,15 @@ import { useRoute } from 'vue-router';
 
 import { DefaultLayout } from '@/app/layouts';
 import { useSessionStore } from '@/shared/store/sessionStore.ts';
+import { useAuthStore } from '@/features/AccountAuthorization/model';
+
+const authStore = useAuthStore();
 
 const route = useRoute();
 const layout = computed(() => route.meta.layout || DefaultLayout);
 
 onMounted(() => {
+  authStore.clearAuthData();
   const session = useSessionStore();
   session.newSession();
 });
