@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue';
+import { ref, nextTick, onMounted, watch } from 'vue';
 
 const props = defineProps<{
   code: string[];
@@ -15,6 +15,8 @@ const emit = defineEmits<{
 }>();
 
 const inputs = ref<(HTMLInputElement | null)[]>([]);
+const currentFocusIndex = ref<number>(0);
+const isProcessingBackspace = ref(false);
 
 const handleInput = (index: number, event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -25,9 +27,9 @@ const handleInput = (index: number, event: Event) => {
   emit('update:code', newCode);
 
   if (value && index < props.code.length - 1) {
+    currentFocusIndex.value = index + 1;
     nextTick(() => {
-      inputs.value[index + 1]?.focus();
-      inputs.value[index + 1]?.select();
+      focusInput(index + 1);
     });
   }
 
@@ -36,30 +38,90 @@ const handleInput = (index: number, event: Event) => {
   }
 };
 
+const focusInput = (index: number) => {
+  const input = inputs.value[index];
+  if (input) {
+    input.focus();
+    input.select();
+    if (props.numpadMethods) {
+      props.numpadMethods.setActiveInput(input);
+    }
+  }
+};
+
 const setActiveInput = (target: EventTarget | null) => {
-  if (target instanceof HTMLInputElement && props.numpadMethods) {
-    props.numpadMethods.setActiveInput(target);
+  if (target instanceof HTMLInputElement) {
+    const index = inputs.value.indexOf(target);
+    if (index !== -1) {
+      currentFocusIndex.value = index;
+    }
+    if (props.numpadMethods) {
+      props.numpadMethods.setActiveInput(target);
+    }
   }
 };
 
 const handleKeydown = (index: number, event: KeyboardEvent) => {
   if (event.key === 'Backspace') {
+    event.preventDefault();
+
+    if (isProcessingBackspace.value) return;
+    isProcessingBackspace.value = true;
+
     if (props.code[index] === '' && index > 0) {
-      const prevInput = inputs.value[index - 1];
-      if (prevInput) {
-        prevInput.focus();
-        prevInput.select();
-      }
+      currentFocusIndex.value = index - 1;
+      nextTick(() => {
+        focusInput(index - 1);
+        isProcessingBackspace.value = false;
+      });
+    } else if (props.code[index] === '' && index === 0) {
+      nextTick(() => {
+        focusInput(0);
+        isProcessingBackspace.value = false;
+      });
     } else {
       const newCode = [...props.code];
       newCode[index] = '';
       emit('update:code', newCode);
+      nextTick(() => {
+        focusInput(index);
+        isProcessingBackspace.value = false;
+      });
     }
   }
 };
 
+watch(
+  () => props.error,
+  (newError, oldError) => {
+    if (newError && !oldError) {
+      nextTick(() => {
+        focusInput(currentFocusIndex.value);
+      });
+    }
+  }
+);
+
+watch(
+  () => props.code,
+  (newCode) => {
+    if (newCode.every((char) => char === '')) {
+      currentFocusIndex.value = 0;
+      nextTick(() => {
+        focusInput(0);
+        if (props.numpadMethods) {
+          props.numpadMethods.setActiveInput(inputs.value[0]);
+        }
+      });
+    }
+  },
+  { deep: true }
+);
+
 onMounted(() => {
-  console.log('error prop:', props.error);
+  nextTick(() => {
+    focusInput(0);
+  });
 });
 </script>
 

@@ -88,6 +88,7 @@ watch(showSMSCode, (val) => {
     />
     <VNumpad
       :is-visible="isNumpadVisible"
+      :code="code"
       ref="numpadRef"
       @close="closeNumpad"
     />

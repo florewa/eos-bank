@@ -189,7 +189,6 @@ defineExpose({
         @submit="submitCode"
         :numpad-methods="numpadMethods"
         :error="error"
-        :key="error + smsCode.join('')"
       />
       <div class="sms-code__repeat-action">
         <span v-if="isTimerActive">

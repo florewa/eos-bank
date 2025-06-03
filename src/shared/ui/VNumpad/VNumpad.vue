@@ -23,35 +23,53 @@ const setActiveInput = (input: HTMLInputElement | null) => {
 const handleKeyPress = (key: string) => {
   if (!activeInput.value) return;
 
-  const currentIndex = Array.from(document.querySelectorAll('input')).indexOf(
-    activeInput.value
-  );
+  if (!document.body.contains(activeInput.value)) {
+    const firstInput = document.querySelector('input') as HTMLInputElement;
+    if (firstInput) {
+      activeInput.value = firstInput;
+      firstInput.focus();
+    }
+    return;
+  }
+
+  const inputs = Array.from(document.querySelectorAll('input'));
+  const currentIndex = inputs.indexOf(activeInput.value);
 
   switch (key) {
     case 'backspace':
-      if (activeInput.value.value === '' && currentIndex > 0) {
-        const prevInput = document.querySelectorAll('input')[
-          currentIndex - 1
-        ] as HTMLInputElement;
-        prevInput.value = '';
-        prevInput.dispatchEvent(new Event('input', { bubbles: true }));
-        prevInput.focus();
-        activeInput.value = prevInput;
-      } else {
+      const currentValue = activeInput.value.value;
+
+      if (currentValue) {
         activeInput.value.value = '';
         activeInput.value.dispatchEvent(new Event('input', { bubbles: true }));
+        nextTick(() => {
+          activeInput.value?.focus();
+          activeInput.value?.select();
+        });
+      } else if (currentIndex > 0) {
+        const prevInput = inputs[currentIndex - 1] as HTMLInputElement;
+        activeInput.value = prevInput;
+        prevInput.value = '';
+        prevInput.dispatchEvent(new Event('input', { bubbles: true }));
+        nextTick(() => {
+          prevInput.focus();
+          prevInput.select();
+        });
+      } else {
+        nextTick(() => {
+          activeInput.value?.focus();
+          activeInput.value?.select();
+        });
       }
       break;
+
     default:
       if (!activeInput.value.value) {
         activeInput.value.value = key;
         activeInput.value.dispatchEvent(new Event('input', { bubbles: true }));
-
-        if (currentIndex < document.querySelectorAll('input').length - 1) {
+        if (currentIndex < inputs.length - 1) {
           nextTick(() => {
-            const nextInput = document.querySelectorAll('input')[
-              currentIndex + 1
-            ] as HTMLInputElement;
+            const nextInput = inputs[currentIndex + 1] as HTMLInputElement;
             nextInput.focus();
             nextInput.select();
             activeInput.value = nextInput;
