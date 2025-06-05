@@ -10,5 +10,8 @@ declare global {
     TIMEOUT_IN_PAYMENT: number;
     TERMINAL_ID: number;
     ym?: (...args: any[]) => void;
+    sessionStore?: {
+      id?: string;
+    };
   }
 }

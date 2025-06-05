@@ -13,9 +13,24 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const id = ref('');
 
   const newSession = () => {
-    id.value = generateNumericId();
+    if (window.sessionStore?.id) {
+      id.value = window.sessionStore.id;
+    } else {
+      id.value = generateNumericId();
+      window.sessionStore = window.sessionStore || {};
+      window.sessionStore.id = id.value;
+    }
     console.log('[SESSION] new id →', id.value);
   };
+
+  if (
+    document.readyState === 'complete' ||
+    document.readyState === 'interactive'
+  ) {
+    newSession();
+  } else {
+    window.addEventListener('DOMContentLoaded', newSession, { once: true });
+  }
 
   return {
     id,

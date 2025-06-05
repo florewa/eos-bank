@@ -5,50 +5,64 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EOS-BANK</title>
+    <script>
+      const customClientId =
+        Date.now().toString().slice(-6) +
+        Math.floor(Math.random() * 100000)
+          .toString()
+          .padStart(5, '0');
+      window.sessionStore = { id: customClientId };
+      console.log('[INDEX] customClientId →', customClientId);
+    </script>
     <script src="/config.js" defer></script>
     <script src="/exiter.js" defer></script>
-    <!--    <script type="text/javascript">-->
-    <!--      (function (m, e, t, r, i, k, a) {-->
-    <!--        m[i] =-->
-    <!--          m[i] ||-->
-    <!--          function () {-->
-    <!--            (m[i].a = m[i].a || []).push(arguments);-->
-    <!--          };-->
-    <!--        m[i].l = 1 * new Date();-->
-    <!--        (k = e.createElement(t)),-->
-    <!--          (a = e.getElementsByTagName(t)[0]),-->
-    <!--          (k.async = 1),-->
-    <!--          (k.src = r),-->
-    <!--          a.parentNode.insertBefore(k, a);-->
-    <!--      })(-->
-    <!--        window,-->
-    <!--        document,-->
-    <!--        'script',-->
-    <!--        'https://mc.yandex.ru/metrika/tag.js',-->
-    <!--        'ym'-->
-    <!--      );-->
+    <script type="text/javascript">
+      window.addEventListener('DOMContentLoaded', function () {
+        const customClientId = window.sessionStore.id;
 
-    <!--      ym(100955373, 'init', {-->
-    <!--        clickmap: true,-->
-    <!--        trackLinks: true,-->
-    <!--        accurateTrackBounce: true,-->
-    <!--        // webvisor: true,-->
-    <!--      });-->
-    <!--    </script>-->
+        (function (m, e, t, r, i, k, a) {
+          m[i] =
+            m[i] ||
+            function () {
+              (m[i].a = m[i].a || []).push(arguments);
+            };
+          m[i].l = 1 * new Date();
+          (k = e.createElement(t)),
+            (a = e.getElementsByTagName(t)[0]),
+            (k.async = 1),
+            (k.src = r),
+            a.parentNode.insertBefore(k, a);
+        })(
+          window,
+          document,
+          'script',
+          'https://mc.yandex.ru/metrika/tag.js',
+          'ym'
+        );
+
+        ym(100955373, 'init', {
+          clickmap: true,
+          trackLinks: true,
+          accurateTrackBounce: true,
+          id: customClientId,
+          userParams: {
+            UserId: customClientId,
+          },
+        });
+      });
+    </script>
   </head>
   <body>
     <div id="app"></div>
-
-    <!--    <noscript>-->
-    <!--      <div>-->
-    <!--        <img-->
-    <!--          src="https://mc.yandex.ru/watch/100955373"-->
-    <!--          style="position: absolute; left: -9999px"-->
-    <!--          alt=""-->
-    <!--        />-->
-    <!--      </div>-->
-    <!--    </noscript>-->
-
+    <noscript>
+      <div>
+        <img
+          src="https://mc.yandex.ru/watch/100955373"
+          style="position: absolute; left: -9999px"
+          alt=""
+        />
+      </div>
+    </noscript>
     <script type="module" src="/src/app/main.ts"></script>
   </body>
 </html>
